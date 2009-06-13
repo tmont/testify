@@ -6,7 +6,7 @@
 		protected $tests;
 		
 		public function __construct($name, array $tests) {
-			$this->name = $name;
+			$this->name  = $name;
 			$this->tests = $tests;
 		}
 		
@@ -18,28 +18,35 @@
 		
 		}
 		
+		public function addTest(Testable $test) {
+			$this->tests[] = $test;
+			return $this;
+		}
+		
 		public function run(array $listeners) {
+			foreach ($listeners as $listener) {
+				$listener->beforeTestSuite($this);
+			}
+			
+			$result = new CombinedTestResult();
+			
 			$this->setUp();
 			foreach ($this->tests as $test) {
-				if ($test instanceof self) {
-					foreach ($this->listeners as $listener) {
-						$listener->beforeTestSuite($test);
-					}
-					
-					$result = $test->run($listeners);
-					
-					foreach ($this->listeners as $listener) {
-						$listener->afterTestSuite($test);
-					}
-				} else if ($test instanceof TestCase) {
-					$test->run($listeners);
+				if ($test instanceof Testable) {
+					$result->addTestResult($test->run($listeners));
 				} else {
 					foreach ($this->listeners as $listener) {
-						$listener->onFrameworkWarning('Unable to run test because it is not an instanceof Testable (' . gettype($test) . ')');
+						$listener->onFrameworkWarning('Unable to run test because it is not an instance of Testable (' . gettype($test) . ')');
 					}
 				}
 			}
 			$this->tearDown();
+			
+			foreach ($listeners as $listener) {
+				$listener->afterTestSuite($this);
+			}
+			
+			return $result;
 		}
 		
 	}

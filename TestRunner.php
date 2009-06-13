@@ -3,11 +3,9 @@
 	class TestRunner {
 		
 		protected $tests;
-		protected $name;
 		protected $listeners;
 		
-		public function __construct($name, array $tests, array $listeners = array()) {
-			$this->name      = $name;
+		public function __construct(array $tests, array $listeners = array()) {
 			$this->tests     = $tests;
 			$this->listeners = $listeners;
 		}
@@ -22,16 +20,19 @@
 			return $this;
 		}
 		
-		public function run() {
+		public function runTests() {
+			$results = array();
 			foreach ($this->tests as $test) {
 				if ($test instanceof Testable) {
-					$test->run($this->listeners);
+					$results[] = $test->run($this->listeners);
 				} else {
 					foreach ($this->listeners as $listener) {
 						$listener->onFrameworkWarning('Unable to run test because it is not an instanceof Testable (' . gettype($test) . ')');
 					}
 				}
 			}
+			
+			return $results;
 		}
 		
 	}

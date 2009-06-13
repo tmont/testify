@@ -21,7 +21,7 @@
 				$listener->onBeforeTestCase($this);
 			}
 			
-			$result = new TestCaseResult();
+			$result = new CombinedTestResult();
 			foreach ($this->getTestableMethods() as $method) {
 				$testMethod = new TestMethod($this, $method);
 				$result->addTestResult($testMethod->run($listeners));

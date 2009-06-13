@@ -1,6 +1,6 @@
 <?php
 
-	class TestCaseResult implements TestResult {
+	class CombinedCaseResult implements TestResult {
 		
 		protected $testResults;
 		
@@ -17,18 +17,20 @@
 		}
 		
 		public function count() {
-			return count($this->testResults);
+			return count($this->getAllTestResults());
 		}
 		
 		public function addTestResult(TestResult $result) {
 			$this->testResults[] = $result;
 		}
 		
-		public function getTestResults() {
+		public function getAllTestResults() {
+			//use a recursive iterator here...
 			return $this->testResults;
 		}
 		
 		public function getPassedTestResults() {
+			//use a recursive iterator here...
 			$passedTests = array();
 			foreach ($this->testResults as $testResult) {
 				if ($testResult instanceof PassedTestResult) {
@@ -40,6 +42,7 @@
 		}
 		
 		public function getFailedTestResults() {
+			//use a recursive iterator here...
 			$failedTests = array();
 			foreach ($this->testResults as $testResult) {
 				if (!($testResult instanceof PassedTestResult)) {
