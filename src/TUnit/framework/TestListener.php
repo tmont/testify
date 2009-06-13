@@ -2,14 +2,12 @@
 
 	class TestListener {
 		
-		protected $reporter;
-		
-		public function __construct(TestReporter $reporter) {
-			$this->reporter = $reporter;
+		public function __construct() {
+			
 		}
 		
 		public function beforeTestSuite(TestSuite $suite) {
-		
+			
 		}
 		
 		public function afterTestSuite(TestSuite $suite) {
@@ -32,31 +30,27 @@
 		
 		}
 		
-		public function onTestCaseErred(TestCase $test) {
+		public function beforeTestMethod(TestMethod $method) {
 		
 		}
 		
-		public function beforeTestMethod(ReflectionMethod $method) {
+		public function afterTestMethod(TestMethod $method) {
 		
 		}
 		
-		public function afterTestMethod(ReflectionMethod $method) {
+		public function onTestMethodFailed(TestMethod $method) {
 		
 		}
 		
-		public function onTestMethodFailed(ReflectionMethod $method) {
+		public function onTestMethodPassed(TestMethod $method) {
 		
 		}
 		
-		public function onTestMethodPassed(ReflectionMethod $method) {
+		public function onTestMethodErred(TestMethod $method) {
 		
 		}
 		
-		public function onTestMethodErred(ReflectionMethod $method) {
-		
-		}
-		
-		public function onTestMethodIgnored(ReflectionMethod $method) {
+		public function onTestMethodIgnored(TestMethod $method) {
 		
 		}
 		

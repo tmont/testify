@@ -5,7 +5,7 @@
 		protected $name;
 		protected $tests;
 		
-		public function __construct($name, array $tests) {
+		public function __construct($name, array $tests = array()) {
 			$this->name  = $name;
 			$this->tests = $tests;
 		}

@@ -1,6 +1,6 @@
 <?php
 
-	class CombinedCaseResult implements TestResult {
+	class CombinedTestResult implements TestResult {
 		
 		protected $testResults;
 		
