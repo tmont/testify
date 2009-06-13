@@ -49,10 +49,10 @@
 		public function afterTestSuite(TestSuite $suite) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
+				case self::VERBOSITY_MEDIUM:
 					$this->out("\n");
 					break;
 				case self::VERBOSITY_LOW:
-				case self::VERBOSITY_MEDIUM:
 				default:
 					break;
 			}
@@ -192,6 +192,19 @@
 		public function onFrameworkWarning($message) {
 			if ($this->verbosity > self::VERBOSITY_LOW) {
 				$this->out('WARNING: ' . $message);
+			}
+		}
+		
+		public function publishTestResult(TestResult $result) {
+			$failure = $result->getFailure();
+			if ($failure instanceof TestFailure) {
+				$this->out("\n");
+				$this->out("----------- FAILURE -----------\n");
+				$this->out($result->getTest()->getName() . "\n\n");
+				$this->out($failure->getMessage());
+				$this->out("\n\nStack trace:\n");
+				$this->out($failure->getStackTrace());
+				$this->out("\n");
 			}
 		}
 		

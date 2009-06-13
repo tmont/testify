@@ -9,11 +9,11 @@
 				case 'object':
 					return get_class($var);
 				case 'string':
-					if (strlen($var) > 47) {
-						return substr($var, 0, 20) . '...' . substr($var, floor(strlen($var) / 2) - 3, 7) . '...' . substr($var, -20);
+					if (strlen($var) > 20) {
+						return '"' . substr($var, 0, 10) . '...' . substr($var, -10) . '"';
 					}
 					
-					return $var;
+					return '"' . $var . '"';
 				case 'double':
 				case 'null':
 				case 'boolean':
@@ -21,6 +21,8 @@
 					return var_export($var, true);
 				case 'resource':
 					return 'resource of type ' . get_resource_type($var);
+				case 'array':
+					return 'array(' . count($var) . ')';
 			}
 		}
 		

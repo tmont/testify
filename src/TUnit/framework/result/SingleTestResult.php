@@ -5,9 +5,17 @@
 		protected $test;
 		protected $failure;
 		
-		public function __construct(Testable $test, TestFailure $failure) {
+		public function __construct(Testable $test, TestFailure $failure = null) {
 			$this->test    = $test;
 			$this->failure = $failure;
+		}
+		
+		public function getTest() {
+			return $this->test;
+		}
+		
+		public function getFailure() {
+			return $this->failure;
 		}
 		
 		public function count() {

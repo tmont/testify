@@ -10,6 +10,10 @@
 			$this->method   = $method;
 		}
 		
+		public function getName() {
+			return $this->method->getDeclaringClass()->getName() . '::' . $this->method->getName();
+		}
+		
 		public function run(array $listeners) {
 			foreach ($listeners as $listener) {
 				$listener->beforeTestMethod($this);

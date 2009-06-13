@@ -24,9 +24,16 @@
 			$this->testResults[] = $result;
 		}
 		
-		public function getAllTestResults() {
-			//use a recursive iterator here...
+		public function getTestResults() {
 			return $this->testResults;
+		}
+		
+		public function getAllTestResults() {
+			$tests = array();
+			foreach (new RecursiveIteratorIterator(new RecursiveTestIterator($this->testResults)) as $test) {
+				$tests[] = $test;
+			}
+			return $tests;
 		}
 		
 		public function getPassedTestResults() {

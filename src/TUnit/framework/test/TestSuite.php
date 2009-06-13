@@ -10,6 +10,10 @@
 			$this->tests = $tests;
 		}
 		
+		public function getName() {
+			return $this->name;
+		}
+		
 		protected function setUp() {
 		
 		}
