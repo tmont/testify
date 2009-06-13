@@ -22,7 +22,7 @@
 			
 			$testClass = new $testClass($testClass);
 			if ($testClass instanceof Testable) {
-				$tests[] = $testClasse;
+				$tests[] = $testClass;
 			}
 		} else if (is_dir($arg)) {
 			foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($arg)) as $file) {
@@ -36,7 +36,7 @@
 					
 					$testClass = new $testClass($testClass);
 					if ($testClass instanceof Testable) {
-						$tests[] = $testClasse;
+						$tests[] = $testClass;
 					}
 				}
 			}

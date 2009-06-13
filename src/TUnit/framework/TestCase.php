@@ -18,7 +18,7 @@
 		
 		public function run(array $listeners) {
 			foreach ($listeners as $listener) {
-				$listener->onBeforeTestCase($this);
+				$listener->beforeTestCase($this);
 			}
 			
 			$result = new CombinedTestResult();
@@ -28,7 +28,7 @@
 			}
 			
 			foreach ($listeners as $listener) {
-				$listener->onAfterTestCase($this);
+				$listener->afterTestCase($this);
 			}
 			
 			return $result;
@@ -38,7 +38,7 @@
 			$refClass = new ReflectionClass($this);
 			$methods = array();
 			foreach ($refClass->getMethods() as $method) {
-				if (preg_match('/^[\*\s]*@test\s*$/m', $method->getDocBlock())) {
+				if (preg_match('/^[\*\s]*@test\s*$/m', $method->getDocComment())) {
 					$methods[] = $method;
 				}
 			}

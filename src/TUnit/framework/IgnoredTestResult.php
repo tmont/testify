@@ -18,6 +18,10 @@
 			return false;
 		}
 		
+		public function count() {
+			return 1;
+		}
+		
 	}
 
 ?>

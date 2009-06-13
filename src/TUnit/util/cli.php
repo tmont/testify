@@ -17,6 +17,7 @@
 			);
 			
 			$last = null;
+			$switch = null;
 			foreach ($args as $arg) {
 				if (strpos($arg, '-') === 0) {
 					$last = (substr($arg, 0, 2) === '--') ? substr($arg, 2) : substr($arg, 1);

@@ -23,6 +23,9 @@
 			try {
 				$this->method->invoke($this->testCase);
 				$testPassed = true;
+				foreach ($listeners as $listener) {
+					$listener->onTestMethodPassed($this);
+				}
 			} catch (TestFailure $failure) {
 				$this->handleTestFailure($failure);
 			} catch (Exception $e) {
@@ -32,7 +35,7 @@
 				}
 			}
 			
-			$result = $this->createTestResult($this, $failure);
+			$result = $this->createTestResult($failure);
 			$this->testCase->tearDown();
 			
 			foreach ($listeners as $listener) {
