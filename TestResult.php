@@ -1,10 +1,10 @@
 <?php
 
-	abstract class TestResult {
+	interface TestResult extends Countable {
 		
-		public function __construct(TestCase $test) {
-			
-		}
+		public function passed();
+		
+		public function failed();
 		
 	}
 
