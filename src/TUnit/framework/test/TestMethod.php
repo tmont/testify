@@ -25,7 +25,7 @@
 					$listener->onTestMethodPassed($this);
 				}
 			} catch (TestFailure $failure) {
-				$this->handleTestFailure($failure);
+				$this->handleTestFailure($failure, $listeners);
 			} catch (Exception $e) {
 				//test for expected exception
 				foreach ($listeners as $listener) {
@@ -57,7 +57,7 @@
 			throw new InvalidArgumentException('Unknown test failure type: ' . get_class($failure));
 		}
 		
-		protected function handleTestFailure(TestFailure $failure) {
+		protected function handleTestFailure(TestFailure $failure, array $listeners) {
 			if ($failure instanceof FailedTest) {
 				foreach ($listeners as $listener) {
 					$listener->onTestMethodFailed($this);

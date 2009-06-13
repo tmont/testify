@@ -26,11 +26,12 @@
 		
 		private function writeTestMethodResult($text) {
 			if ($this->currentLineLength >= self::LINE_LENGTH) {
-				$this->out("\n    ");
+				$this->out("\n");
+				$this->currentLineLength = 0;
 			}
 			
 			$this->out($text);
-			$This->currentLineLength = 4 + strlen($text);
+			$this->currentLineLength = strlen($text);
 		}
 		
 		public function beforeTestSuite(TestSuite $suite) {
@@ -110,7 +111,6 @@
 				case self::VERBOSITY_HIGH:
 					$this->out('    ' . $method->getName() . ': ');
 					break;
-				case self::VERBOSITY_LOW:
 				case self::VERBOSITY_MEDIUM:
 				default:
 					break;
