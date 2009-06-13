@@ -45,7 +45,7 @@
 	
 	
 	$runner = new TestRunner(array(new TestSuite('Main Test Suite', $tests)), array(new ConsoleListener()));
-	$runner->runTests();
+	$runner->runAndPublish();
 	exit(0);
 
 ?>

@@ -1,6 +1,6 @@
 <?php
 
-	class ConsoleListener {
+	class ConsoleListener extends TestListener {
 		
 		private $verbosity;
 		private $currentLineLength;

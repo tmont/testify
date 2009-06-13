@@ -27,12 +27,22 @@
 					$results[] = $test->run($this->listeners);
 				} else {
 					foreach ($this->listeners as $listener) {
-						$listener->onFrameworkWarning('Unable to run test because it is not an instanceof Testable (' . gettype($test) . ')');
+						$listener->onFrameworkWarning('Unable to run test because it is not an instance of Testable (' . gettype($test) . ')');
 					}
 				}
 			}
 			
 			return $results;
+		}
+		
+		public function publishResults(array $testResults) {
+			foreach ($testResults as $testResult) {
+				$testResult->publish($this->listeners);
+			}
+		}
+		
+		public function runAndPublish() {
+			$this->publishResults($this->runTests());
 		}
 		
 	}

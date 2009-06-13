@@ -6,6 +6,8 @@
 		
 		public function failed();
 		
+		public function publish(array $listeners);
+		
 	}
 
 ?>

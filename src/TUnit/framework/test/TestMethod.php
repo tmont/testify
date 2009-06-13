@@ -15,8 +15,8 @@
 				$listener->beforeTestMethod($this);
 			}
 			
-			$result     = null;
-			$failure    = null;
+			$result  = null;
+			$failure = null;
 			
 			$this->testCase->setUp();
 			try {

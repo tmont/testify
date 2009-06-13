@@ -62,6 +62,10 @@
 		
 		}
 		
+		public function publishTestResult(TestResult $result) {
+			
+		}
+		
 	}
 
 ?>

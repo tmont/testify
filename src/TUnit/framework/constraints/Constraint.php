@@ -10,10 +10,6 @@
 			$this->actual   = $actual;
 		}
 		
-		public abstract function evaluate();
-		
-		protected abstract function getFailureMessage();
-		
 		public function fail($message = '') {
 			throw new FailedTest($this->toString($message));
 		}
@@ -23,6 +19,10 @@
 			$message .= "Failed asserting that\n" . $this->getFailureMessage();
 			return $message;
 		}
+		
+		public abstract function evaluate();
+		
+		protected abstract function getFailureMessage();
 		
 	}
 

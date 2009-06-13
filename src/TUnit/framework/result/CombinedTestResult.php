@@ -53,6 +53,14 @@
 			return $failedTests;
 		}
 		
+		public function publish(array $listeners) {
+			foreach ($this->getAllTestResults() as $result) {
+				foreach ($listeners as $listener) {
+					$listener->publishTestResult($result);
+				}
+			}
+		}
+		
 	}
 
 ?>
