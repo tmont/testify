@@ -3,6 +3,9 @@
 	class ConsoleListener {
 		
 		private $verbosity;
+		private $currentLineLength;
+		
+		const LINE_LENGTH      = 64;
 		
 		const VERBOSITY_LOW    = 0;
 		const VERBOSITY_MEDIUM = 1;
@@ -10,6 +13,7 @@
 		
 		public function __construct($verbosity = self::VERBOSITY_MEDIUM) {
 			$this->verbosity = intval($verbosity);
+			$this->currentLineLength = 0;
 		}
 		
 		private function out($text) {
@@ -18,6 +22,15 @@
 		
 		private function err($text) {
 			fwrite(STDERR, $text);
+		}
+		
+		private function writeTestMethodResult($text) {
+			if ($this->currentLineLength >= self::LINE_LENGTH) {
+				$this->out("\n    ");
+			}
+			
+			$this->out($text);
+			$This->currentLineLength = 4 + strlen($text);
 		}
 		
 		public function beforeTestSuite(TestSuite $suite) {
@@ -95,7 +108,7 @@
 		public function beforeTestMethod(TestMethod $method) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
-					$this->out('    ' . $method->getName() . "\n");
+					$this->out('    ' . $method->getName() . ': ');
 					break;
 				case self::VERBOSITY_LOW:
 				case self::VERBOSITY_MEDIUM:
@@ -121,9 +134,11 @@
 				case self::VERBOSITY_LOW:
 					break;
 				case self::VERBOSITY_HIGH:
+					$this->out('FAIL');
+					break;
 				case self::VERBOSITY_MEDIUM:
 				default:
-					$this->out('F');
+					$this->writeTestMethodResult('F');
 					break;
 			}
 		}
@@ -133,9 +148,11 @@
 				case self::VERBOSITY_LOW:
 					break;
 				case self::VERBOSITY_HIGH:
+					$this->out('pass');
+					break;
 				case self::VERBOSITY_MEDIUM:
 				default:
-					$this->out('.');
+					$this->writeTestMethodResult('.');
 					break;
 			}
 		}
@@ -145,9 +162,11 @@
 				case self::VERBOSITY_LOW:
 					break;
 				case self::VERBOSITY_HIGH:
+					$this->out('ERROR');
+					break;
 				case self::VERBOSITY_MEDIUM:
 				default:
-					$this->out('E');
+					$this->writeTestMethodResult('E');
 					break;
 			}
 		}
@@ -157,9 +176,11 @@
 				case self::VERBOSITY_LOW:
 					break;
 				case self::VERBOSITY_HIGH:
+					$this->out('ignored');
+					break;
 				case self::VERBOSITY_MEDIUM:
 				default:
-					$this->out('I');
+					$this->writeTestMethodResult('I');
 					break;
 			}
 		}
