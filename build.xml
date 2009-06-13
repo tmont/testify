@@ -1,0 +1,60 @@
+<project name="TUnit" basedir="." default="help">
+	
+	<property file="./properties/product.properties" prefix="product"/>
+	<property file="./properties/build.properties" prefix="build"/>
+	<property file="./properties/dir.properties" prefix="dir"/>
+	
+	<target name="clean" depends="init" description="Cleans up artifacts created by the build">
+		<delete dir="${build.base}"/>
+	</target>
+	
+	<target name="help" depends="set-exe-suffix" description="Displays information about available targets">
+		<exec executable="ant${exe.suffix}" failonerror="true">
+			<arg value="-p"/>
+		</exec>
+	</target>
+	
+	<target name="lint" depends="init" description="Scans for parse errors">
+		<apply executable="php">
+			<arg line="-l"/>
+			<fileset dir=".">
+				<include name="${dir.src}/**/*.php"/>
+			</fileset>
+		</apply>
+	</target>
+	
+	<target name="manifest" depends="init" description="Builds the manifest file for the autoload mechanism (to ./inc/manifest.php)">
+		<exec executable="php">
+			<arg line="${dir.tools}/manifester.php"/>
+			<arg line="-d ${dir.src}/${ant.project.name}"/>
+			<arg line="-v ${product.version}"/>
+			<arg line="-p ${ant.project.name}"/>
+			<arg line="-o ${dir.src}/${ant.project.name}/manifest.php"/>
+			<arg line="-r"/>
+			<arg line="-b ${dir.src}"/>
+		</exec>
+	</target>
+	
+	<!--
+		INTERNAL TARGETS
+	-->
+	<target name="init">
+		<tstamp>
+			<format property="TIMESTAMP" pattern="yyyy-MM-dd HH:mm:ss"/>
+		</tstamp>
+		<echo level="info">Beginning build for ${product.name} ${product.version}</echo>
+		<echo level="info">  ${TIMESTAMP}</echo>
+		<echo level="info"/>
+	</target>
+	
+	<target name="prepare-build">
+		<mkdir dir="${build.base}"/>
+	</target>
+	
+	<target name="set-exe-suffix">
+		<condition property="exe.suffix" value=".bat" else="">
+			<os family="winnt"/>
+		</condition>
+	</target>
+	
+</project>
