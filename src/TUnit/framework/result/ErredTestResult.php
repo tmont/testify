@@ -1,6 +1,6 @@
 <?php
 
-	class FailedTestResult implements TestResult {
+	class ErredTestResult implements TestResult {
 		
 		protected $test;
 		protected $failure;
