@@ -1,6 +1,6 @@
 <?php
 
-	class TestMethod implements Testable {
+	/* internal */ class TestMethod implements Testable {
 		
 		protected $testCase;
 		protected $method;
@@ -15,14 +15,12 @@
 				$listener->beforeTestMethod($this);
 			}
 			
-			$testPassed = false;
 			$result     = null;
 			$failure    = null;
 			
 			$this->testCase->setUp();
 			try {
 				$this->method->invoke($this->testCase);
-				$testPassed = true;
 				foreach ($listeners as $listener) {
 					$listener->onTestMethodPassed($this);
 				}
