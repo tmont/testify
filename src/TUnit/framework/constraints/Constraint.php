@@ -14,9 +14,7 @@
 		
 		public abstract function evaluate();
 		
-		protected function getFailureMessage() {
-			return 'something';
-		}
+		protected abstract function getFailureMessage();
 		
 	}
 

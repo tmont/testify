@@ -20,6 +20,10 @@
 			return $this->negateString($this->constraint->toString($message));
 		}
 		
+		protected function getFailureMessage() {
+			throw new BadMethodCallException();
+		}
+		
 		protected function negateString($string) {
 			return str_replace(
 				array(
