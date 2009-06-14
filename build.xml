@@ -36,11 +36,11 @@
 		</exec>
 	</target>
 	
-	<target name="product" depends="init" description="Generates Product.php (product meta information)">
+	<target name="product" depends="init, set-revision-number" description="Generates Product.php (product meta information)">
 		<exec executable="php">
 			<arg line="${dir.tools}/productize.php"/>
 			<arg line="-n ${product.name}"/>
-			<arg line="-v ${product.version}"/>
+			<arg line="-v ${product.version}.${product.revision}"/>
 			<arg line="-a"/>
 			<arg line="${product.author}"/>
 			<arg line="-w ${product.website}"/>
@@ -69,6 +69,11 @@
 		<condition property="exe.suffix" value=".bat" else="">
 			<os family="winnt"/>
 		</condition>
+	</target>
+	
+	<target name="set-revision-number">
+		<exec executable="svnversion" outputproperty="product.revision" failonerror="true"/>
+		<echo level="info">Revision number set to ${product.revision}</echo>
 	</target>
 	
 </project>
