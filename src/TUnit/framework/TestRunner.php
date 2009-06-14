@@ -45,6 +45,11 @@
 			$this->publishResults($this->runTests());
 		}
 		
+		public function printMeta() {
+			fwrite(STDOUT, Product::NAME . ' ' . Product::VERSION . ' (build date: ' . Product::DATE . ')' . "\n");
+			fwrite(STDOUT, '  by ' . Product::AUTHOR . "\n\n");
+		}
+		
 	}
 
 ?>
