@@ -10,8 +10,16 @@
 			}
 		}
 		
-		public static function equals($expected, $actual, $message = '') {
-			self::evaluate(new EqualsConstraint($expected, $actual), $message);
+		protected static function negate(Constraint $constraint) {
+			return new NotConstraint($constraint);
+		}
+		
+		public static function equal($expected, $actual, $message = '') {
+			self::evaluate(new EqualConstraint($expected, $actual), $message);
+		}
+		
+		public static function notEqual($expected, $actual, $message = '') {
+			self::evaluate(self::negate(new EqualConstraint($expected, $actual)), $message);
 		}
 		
 	}

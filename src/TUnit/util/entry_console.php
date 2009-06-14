@@ -4,7 +4,6 @@
 	require_once dirname(dirname(__FILE__)) . '/bootstrap.php';
 	
 	$switches = new CliSwitchCollection();
-	//$switches->AddSwitch(new CliSwitch('ini-directive', 'd', false, 'key="value"', 'php.ini directives'))
 
 	array_shift($argv);
 	$args = Cli::parseArgs($argv, $switches);
