@@ -40,7 +40,7 @@
 	$switches->addSwitch(new CliSwitch('directory', 'd', true,  'dir1,dir2,...',  'Comma-delimited list of directories'))
 			 ->addSwitch(new CliSwitch('version',   'v', true,  'version_number', 'Version number for use in @version tag'))
 			 ->addSwitch(new CliSwitch('package',   'p', true,  'package_name ',  'Name of the package for use in @package tag'))
-			 ->addSwitch(new CliSwitch('output',    'o', false, 'file',           'Name of the output file, defaults to stdout if empty and this is really really really really long'))
+			 ->addSwitch(new CliSwitch('output',    'o', false, 'file',           'Name of the output file, defaults to stdout if empty'))
 			 ->addSwitch(new CliSwitch('quiet',     'q', false, null,             'Do not print progress messages'))
 			 ->addSwitch(new CliSwitch('recursive', 'r', false, null,             'Recursively walk the directories'))
 			 ->addSwitch(new CliSwitch('base-dir',  'b', true,  'dir',            'Base directory'));

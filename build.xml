@@ -6,6 +6,7 @@
 	
 	<target name="clean" depends="init" description="Cleans up artifacts created by the build">
 		<delete dir="${build.base}"/>
+		<delete file="${dir.src}/${ant.project.name}/util/Product.php"/>
 	</target>
 	
 	<target name="help" depends="set-exe-suffix" description="Displays information about available targets">
@@ -23,7 +24,7 @@
 		</apply>
 	</target>
 	
-	<target name="manifest" depends="init" description="Builds the manifest file for the autoload mechanism (to ./inc/manifest.php)">
+	<target name="manifest" depends="init, product" description="Builds the manifest file for the autoload mechanism (to ./inc/manifest.php)">
 		<exec executable="php">
 			<arg line="${dir.tools}/manifester.php"/>
 			<arg line="-d ${dir.src}/${ant.project.name}"/>
@@ -32,6 +33,19 @@
 			<arg line="-o ${dir.src}/${ant.project.name}/manifest.php"/>
 			<arg line="-r"/>
 			<arg line="-b ${dir.src}"/>
+		</exec>
+	</target>
+	
+	<target name="product" depends="init" description="Generates Product.php (product meta information)">
+		<exec executable="php">
+			<arg line="${dir.tools}/productize.php"/>
+			<arg line="-n ${product.name}"/>
+			<arg line="-v ${product.version}"/>
+			<arg line="-a"/>
+			<arg line="${product.author}"/>
+			<arg line="-w ${product.website}"/>
+			<arg line="-p ${ant.project.name}"/>
+			<arg line="-o ${dir.src}/${ant.project.name}/util/Product.php"/>
 		</exec>
 	</target>
 	

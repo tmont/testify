@@ -13,8 +13,6 @@
 						break;
 					}
 					$line .= $frame['file'] . ' (' . $frame['line'] . ') ';
-				} else {
-					$line .= '<internal function> ';
 				}
 				
 				if (isset($frame['class']) || isset($frame['function'])) {
