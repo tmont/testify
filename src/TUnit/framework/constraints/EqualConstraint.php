@@ -7,7 +7,7 @@
 		}
 		
 		protected function getFailureMessage() {
-			return Util::export($this->actual) . "\nis equal to\n" . Util::export($this->expected);
+			return Util::export($this->actual) . ' is equal to ' . Util::export($this->expected);
 		}
 		
 	}

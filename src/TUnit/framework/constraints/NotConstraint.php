@@ -1,6 +1,6 @@
 <?php
 
-	class NotConstraint implements Constraint {
+	class NotConstraint extends Constraint {
 		
 		protected $constraint;
 		
@@ -17,7 +17,7 @@
 		}
 		
 		public function toString($message) {
-			return $this->negateString($constraint->toString($message));
+			return $this->negateString($this->constraint->toString($message));
 		}
 		
 		protected function negateString($string) {
