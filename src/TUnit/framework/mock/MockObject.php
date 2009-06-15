@@ -7,6 +7,8 @@
 		protected $referenceObject;
 		protected $methods;
 		
+		protected static $registry = array();
+		
 		public function __construct($class) {
 			if (!class_exists($class) || !interface_exists($class)) {
 				throw new InvalidArgumentException('The class "' . $class . '" does not exist');
@@ -19,10 +21,31 @@
 			}
 			
 			$this->referenceObject = $refClass;
-			$this->methods = array(
-				'default' => array(),
+			$this->methods         = array(
+				'default' => array(
+					$this->referenceObject->getConstructor()->getName() => array(
+						'body'        => '',
+						'call_parent' => true
+					)
+				),
 				'generic' => array()
 			);
+		}
+		
+		public static function registerInvocation($name, MockInvocation $invocation) {
+			if (!isset(self::$registry[$name])) {
+				throw new LogicException('Unable to register invocation because the object does not exist in the registry');
+			}
+			
+			self::$registry[$name]->registerInvocation($invocation);
+		}
+		
+		public static function getTracker($name) {
+			if (!isset(self::$registry[$name])) {
+				throw new LogicException('Unable to retrieve invocation tracker because the object does not exist in the registry');
+			}
+			
+			return self::$registry[$name];
 		}
 		
 		public function addMethod($methodName, $callParent = false, $body = '') {
@@ -55,10 +78,6 @@
 			return !$method->isFinal() && !$method->isPrivate() && !$method->isStatic();
 		}
 		
-		protected function getDefaultMethodBody() {
-			
-		}
-		
 		public function generate(array $constructorArgs = array(), $name = '') {
 			if (empty($name)) {
 				$className = $this->referenceObject->getName();
@@ -70,15 +89,29 @@
 			if (class_exists($name) || interface_exists($name)) {
 				throw new RuntimeException('Cannot use the name "' . $name . '" for mock object because the class or interface already exists');
 			}
+			
+			$code = $this->generateClassDefinition($name);
+			eval($code);
+			
+			$obj = new ReflectionClass($name);
+			$obj = $obj->newInstanceArgs($constructorArgs);
+			self::$registry[$name] = new InvocationTracker();
+			return $obj;
 		}
 		
-		private function generateClassDefinition(ReflectionClass $class, array $methods, array $args, $name) {
-			$code = 'class ' . $name . ' ' . ($class->isInterface() ? 'implements' : 'extends') . $class->getName() . ' {' . "\n";
+		protected function generateClassDefinition($name) {
+			$code = 'class ' . $name . ' ';
+			if ($this->referenceObject->isInterface()) {
+				$code .= 'implements ' . $this->referenceObject->getName() . ', MockObject';
+			} else {
+				$code .= 'extends ' . $this->getReferenceObject->getName() . ' implements MockObject';
+			}
 			
-			$genericMethods = array();
-			foreach ($methods as $method) {
-				if ($class->hasMethod($method)) {
-					$code .= self::generateMethodDefinition($class->getMethod($method));
+			$code .= " {\n";
+			
+			foreach ($this->methods as $type => $methods) {
+				foreach ($methods as $method => $methodData) {
+					$code .= $this->generateMethodDefinition($type, $method, $methodData);
 				}
 			}
 			
@@ -86,20 +119,28 @@
 			return $code;
 		}
 		
-		private function generateMethodDefinition(ReflectionMethod $method) {
+		protected function generateMethodDefinition($type, $name, array $methodData) {
+			$modifier  = 'public';
+			$params    = '';
+			$paramList = '';
+			if ($type === 'default') {
+				$method    = $this->referenceObject->getMethod($name);
+				$modifier  = ($method->isPublic()) ? 'public' : 'protected';
+				$params    = Util::buildParameterList($method);
+				$paramList = Util::getParameterNameList($method);
+			}
 			
-		}
-		
-		private function generateGenericMethodDefinition(array $methods) {
-			$code  = 'public function __call($method, array $args) {' . "\n";
-			$code .= '	$allowedMethods = ' . var_export($methods, true) . ';' . "\n";
-			$code .= '	if (in_array($method, $allowedMethods)) {' . "\n";
-			$code .= '		' . "\n";
-			$code .= '	} else {' . "\n";
-			$code .= '		throw new BadMethodCallException(\'The method "\' . $method . \'" does not exist on the mocked class "\' . get_class($this) . \'"\');' . "\n";
-			$code .= '	}' . "\n";
-			$code .= '}';
+			$code  = "	$modifier function $name($params) {\n";
+			$code .= "		MockObject::registerInvocation(get_class($this), __FUNCTION__, func_get_args());\n";
 			
+			if ($methodData['call_parent']) {
+				$code .= "		parent::$name($paramList);\n";
+			}
+			if (!empty($methodData['body'])) {
+				$code .= "\t\t" . str_replace("\n", "\n\t\t", $methodData['body']) . "\n";
+			}
+			
+			$code .= '	}';
 			return $code;
 		}
 		
