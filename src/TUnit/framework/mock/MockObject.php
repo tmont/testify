@@ -32,12 +32,12 @@
 			);
 		}
 		
-		public static function registerInvocation($name, MockInvocation $invocation) {
-			if (!isset(self::$registry[$name])) {
+		public static function registerInvocation($className, $methodName, array $args) {
+			if (!isset(self::$registry[$className])) {
 				throw new LogicException('Unable to register invocation because the object does not exist in the registry');
 			}
 			
-			self::$registry[$name]->registerInvocation($invocation);
+			self::$registry[$className]->registerInvocation(new MockInvocation($methodName, $args));
 		}
 		
 		public static function getTracker($name) {
@@ -50,7 +50,6 @@
 		
 		public function addMethod($methodName, $callParent = false, $body = '') {
 			$methodType = 'generic';
-			
 			if ($this->referenceObject->hasMethod($methodName)) {
 				$method = $this->referenceObject->getMethod($methodName);
 				if (!$this->methodIsMockable($method))
