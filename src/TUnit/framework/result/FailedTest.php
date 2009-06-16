@@ -2,11 +2,20 @@
 
 	class TestFailure extends Exception {
 		
+		protected $innerException;
+		
+		public function __construct($message = '', Exception $innerException = null) {
+			parent::__construct($message);
+			
+			$this->innerException = $innerException;
+		}
+		
 		public function getStackTrace() {
-			$trace = $this->getTrace();
+			$trace = ($this->innerException !== null) ? $this->innerException->getTrace() : $this->getTrace();
 			$count = 1;
 			$stackTrace = array();
-			foreach (array_slice($trace, 2) as $i => $frame) {
+			//array_slice($trace, 2)
+			foreach ($trace as $i => $frame) {
 				$line = '[' . ($i + 1) . '] ';
 				if (isset($frame['file'], $frame['line'])) {
 					if ($frame['file'] === dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestMethod.php') {
@@ -23,7 +32,7 @@
 					}
 					
 					if (isset($frame['args']) && !empty($frame['args'])) {
-						$line .= implode(', ', array_map('TestFailure::transformArgs', $frame['args']));
+						$line .= implode(', ', array_map('Util::export', $frame['args']));
 					}
 					
 					$line .= ')';
@@ -33,10 +42,6 @@
 			}
 			
 			return implode("\n", $stackTrace);
-		}
-		
-		protected static function transformArgs($value) {
-			return Util::export($value);
 		}
 		
 	}

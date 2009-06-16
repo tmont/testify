@@ -50,6 +50,16 @@
 			return $methods;
 		}
 		
+		protected function createMockObject($className, array $methods = array(), array $args = array(), $name = '', $callParent = true) {
+			$creator = new MockObjectCreator($className, $callParent);
+			
+			foreach ($methods as $method) {
+				$creator->addMethod($method);
+			}
+			
+			return $creator->generate($args, $name);
+		}
+		
 	}
 
 ?>

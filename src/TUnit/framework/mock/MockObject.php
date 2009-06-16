@@ -9,8 +9,8 @@
 		
 		protected static $registry = array();
 		
-		public function __construct($class) {
-			if (!class_exists($class) || !interface_exists($class)) {
+		public function __construct($class, $callParent = true) {
+			if (!class_exists($class) && !interface_exists($class)) {
 				throw new InvalidArgumentException('The class "' . $class . '" does not exist');
 			}
 			
@@ -25,7 +25,7 @@
 				'default' => array(
 					$this->referenceObject->getConstructor()->getName() => array(
 						'body'        => '',
-						'call_parent' => true
+						'call_parent' => (bool)$callParent
 					)
 				),
 				'generic' => array()
@@ -52,7 +52,7 @@
 			$methodType = 'generic';
 			if ($this->referenceObject->hasMethod($methodName)) {
 				$method = $this->referenceObject->getMethod($methodName);
-				if (!$this->methodIsMockable($method))
+				if (!$this->methodIsMockable($method)) {
 					throw new LogicException('The method "' . $methodName . '" is static, private or final and cannot be mocked');
 				}
 				
@@ -92,9 +92,10 @@
 			$code = $this->generateClassDefinition($name);
 			eval($code);
 			
+			self::$registry[$name] = new InvocationTracker();
+			
 			$obj = new ReflectionClass($name);
 			$obj = $obj->newInstanceArgs($constructorArgs);
-			self::$registry[$name] = new InvocationTracker();
 			return $obj;
 		}
 		
@@ -103,14 +104,14 @@
 			if ($this->referenceObject->isInterface()) {
 				$code .= 'implements ' . $this->referenceObject->getName() . ', MockObject';
 			} else {
-				$code .= 'extends ' . $this->getReferenceObject->getName() . ' implements MockObject';
+				$code .= 'extends ' . $this->referenceObject->getName() . ' implements MockObject';
 			}
 			
 			$code .= " {\n";
 			
 			foreach ($this->methods as $type => $methods) {
 				foreach ($methods as $method => $methodData) {
-					$code .= $this->generateMethodDefinition($type, $method, $methodData);
+					$code .= $this->generateMethodDefinition($type, $method, $methodData) . "\n";
 				}
 			}
 			
@@ -125,12 +126,16 @@
 			if ($type === 'default') {
 				$method    = $this->referenceObject->getMethod($name);
 				$modifier  = ($method->isPublic()) ? 'public' : 'protected';
-				$params    = Util::buildParameterList($method);
-				$paramList = Util::getParameterNameList($method);
+				$params    = Util::buildParameterDefinition($method);
+				$paramList = Util::buildParameterNameList($method);
 			}
 			
+			$varName = '$___args_' . uniqid();
+			
 			$code  = "	$modifier function $name($params) {\n";
-			$code .= "		MockObject::registerInvocation(get_class($this), __FUNCTION__, func_get_args());\n";
+			$code .= "		$varName = func_get_args();\n";
+			$code .= "		MockObjectCreator::registerInvocation(get_class(\$this), __FUNCTION__, $varName);\n";
+			$code .= "		unset($varName);\n";
 			
 			if ($methodData['call_parent']) {
 				$code .= "		parent::$name($paramList);\n";
@@ -139,7 +144,7 @@
 				$code .= "\t\t" . str_replace("\n", "\n\t\t", $methodData['body']) . "\n";
 			}
 			
-			$code .= '	}';
+			$code .= "	}";
 			return $code;
 		}
 		

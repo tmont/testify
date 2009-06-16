@@ -56,7 +56,7 @@
 			return rtrim($paramList, ', ');
 		}
 		
-		private static repairParameterName($name, $position) {
+		private static function repairParameterName($name, $position) {
 			if (empty($name)) {
 				$name = 'param' . $position;
 			}

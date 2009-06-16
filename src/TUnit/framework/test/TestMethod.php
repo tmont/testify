@@ -35,6 +35,8 @@
 				foreach ($listeners as $listener) {
 					$listener->onTestMethodErred($this);
 				}
+				
+				$failure = new ErredTest($e->getMessage(), $e);
 			}
 			
 			$result = $this->createTestResult($failure);
@@ -47,13 +49,13 @@
 			return $result;
 		}
 		
-		protected function createTestResult(TestFailure $failure = null) {
+		protected function createTestResult(Exception $failure = null) {
 			if ($failure === null) {
 				return new PassedTestResult($this);
-			} else if ($failure instanceof FailedTest) {
-				return new FailedTestResult($this, $failure);
 			} else if ($failure instanceof ErredTest) {
 				return new ErredTestResult($this, $failure);
+			} else if ($failure instanceof FailedTest) {
+				return new FailedTestResult($this, $failure);
 			} else if ($failure instanceof IgnoredTest) {
 				return new IgnoredTestResult($this, $failure);
 			}

@@ -1,6 +1,6 @@
 <?php
 
-	abstract class MockInvocation implements Verifiable {
+	class MockInvocation {
 		
 		protected $method;
 		protected $args;

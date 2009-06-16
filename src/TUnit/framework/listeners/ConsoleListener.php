@@ -200,9 +200,8 @@
 			if ($failure instanceof TestFailure) {
 				$this->out("\n");
 				$this->out("----------- FAILURE -----------\n");
-				$this->out($result->getTest()->getName() . "\n\n");
-				$this->out($failure->getMessage());
-				$this->out("\n\nStack trace:\n");
+				$this->out('Test name: ' . $result->getTest()->getName() . "\n");
+				$this->out('Message:   ' . $failure->getMessage() . "\n\n");
 				$this->out($failure->getStackTrace());
 				$this->out("\n");
 			}
