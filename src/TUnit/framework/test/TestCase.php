@@ -4,6 +4,11 @@
 		
 		protected $name;
 		
+		const ANY           = -1;
+		const AT_LEAST_ONCE = -2;
+		
+		protected static $mockStorage = array();
+		
 		public function __construct($name) {
 			$this->name = $name;
 		}
@@ -13,7 +18,7 @@
 		}
 		
 		public function setUp() {
-		
+			
 		}
 		
 		public function tearDown() {
@@ -58,6 +63,10 @@
 			}
 			
 			return $creator->generate($args, $name);
+		}
+		
+		protected function mock(MockObject $mock) {
+			return new MockHandler($mock);
 		}
 		
 	}

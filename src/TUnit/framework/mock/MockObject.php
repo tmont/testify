@@ -8,6 +8,7 @@
 		protected $methods;
 		
 		protected static $registry = array();
+		protected static $expectations = array();
 		
 		public function __construct($class, $callParent = true) {
 			if (!class_exists($class) && !interface_exists($class)) {
@@ -32,12 +33,35 @@
 			);
 		}
 		
+		public static function resetTrackers() {
+			self::$registry = array();
+			self::$expectations = array();
+		}
+		
+		public static function addExpectation($className, InvocationExpectation $expectation) {
+			if (!isset(self::$expectations[$className])) {
+				throw new LogicException('Unable to add invocation expectation because the object does not exist in the registry');
+			}
+			
+			self::$expectations[$className][] = $expectation;
+		}
+		
+		public static function getExpectations($className) {
+			if (!isset(self::$expectations[$className])) {
+				throw new LogicException('Unable to add invocation expectation because the object does not exist in the registry');
+			}
+			
+			return self::$expectations[$className];
+		}
+		
 		public static function registerInvocation($className, $methodName, array $args) {
 			if (!isset(self::$registry[$className])) {
 				throw new LogicException('Unable to register invocation because the object does not exist in the registry');
 			}
 			
-			self::$registry[$className]->registerInvocation(new MockInvocation($methodName, $args));
+			$count = self::getInvocationCount($className, $methodName);
+			$expectation = self::$registry[$className]->registerInvocation(new MockInvocation($className, $methodName, $args, $count));
+			return $expectation;
 		}
 		
 		public static function getTracker($name) {
@@ -46,6 +70,17 @@
 			}
 			
 			return self::$registry[$name];
+		}
+		
+		private static function getInvocationCount($className, $methodName) {
+			$count = 1;
+			foreach (self::$registry[$className]->getInvocations() as $invocation) {
+				if ($invocation->getMethod() === $methodName) {
+					$count++;
+				}
+			}
+			
+			return $count;
 		}
 		
 		public function addMethod($methodName, $callParent = false, $body = '') {
@@ -91,8 +126,10 @@
 			
 			$code = $this->generateClassDefinition($name);
 			eval($code);
+			//print_r($code); exit;
 			
-			self::$registry[$name] = new InvocationTracker();
+			self::$registry[$name]     = new InvocationTracker();
+			self::$expectations[$name] = array();
 			
 			$obj = new ReflectionClass($name);
 			$obj = $obj->newInstanceArgs($constructorArgs);
@@ -130,21 +167,29 @@
 				$paramList = Util::buildParameterNameList($method);
 			}
 			
-			$varName = '$___args_' . uniqid();
+			$temp1      = '$___temp1_' . uniqid();
+			$temp2      = '$___temp2_' . uniqid();
+			$parentCall = ($methodData['call_parent']) ? "parent::$name($paramList);" : '//placeholder for call to parent';
+			$body       = (!empty($methodData['body'])) ? str_replace("\n", "\n\t\t", $methodData['body']) : '//placeholder for custom method body';
+			$code       = <<<CODE
+	$modifier function $name($params) {
+		$temp1 = func_get_args();
+		$temp2 = MockObjectCreator::registerInvocation(get_class(\$this), __FUNCTION__, $temp1);
+		if ($temp2 instanceof InvocationExpectation) {
+			//this invocation matched an invocation expectation
 			
-			$code  = "	$modifier function $name($params) {\n";
-			$code .= "		$varName = func_get_args();\n";
-			$code .= "		MockObjectCreator::registerInvocation(get_class(\$this), __FUNCTION__, $varName);\n";
-			$code .= "		unset($varName);\n";
+			$parentCall
 			
-			if ($methodData['call_parent']) {
-				$code .= "		parent::$name($paramList);\n";
-			}
-			if (!empty($methodData['body'])) {
-				$code .= "\t\t" . str_replace("\n", "\n\t\t", $methodData['body']) . "\n";
-			}
+			return {$temp2}->execute();
+		}
+		unset($temp1, $temp2);
+		
+		$parentCall
+		
+		$body
+	}
+CODE;
 			
-			$code .= "	}";
 			return $code;
 		}
 		
