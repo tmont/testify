@@ -10,7 +10,7 @@
 		
 		public function expectsMethod($methodName) {
 			$expectation = new InvocationExpectation($methodName);
-			MockObjectCreator::addExpectation($this->className, $expectation);
+			MockRegistry::addExpectation($this->className, $expectation);
 			return $expectation;
 		}
 		

@@ -33,56 +33,6 @@
 			);
 		}
 		
-		public static function resetTrackers() {
-			self::$registry = array();
-			self::$expectations = array();
-		}
-		
-		public static function addExpectation($className, InvocationExpectation $expectation) {
-			if (!isset(self::$expectations[$className])) {
-				throw new LogicException('Unable to add invocation expectation because the object does not exist in the registry');
-			}
-			
-			self::$expectations[$className][] = $expectation;
-		}
-		
-		public static function getExpectations($className) {
-			if (!isset(self::$expectations[$className])) {
-				throw new LogicException('Unable to add invocation expectation because the object does not exist in the registry');
-			}
-			
-			return self::$expectations[$className];
-		}
-		
-		public static function registerInvocation($className, $methodName, array $args) {
-			if (!isset(self::$registry[$className])) {
-				throw new LogicException('Unable to register invocation because the object does not exist in the registry');
-			}
-			
-			$count = self::getInvocationCount($className, $methodName);
-			$expectation = self::$registry[$className]->registerInvocation(new MockInvocation($className, $methodName, $args, $count));
-			return $expectation;
-		}
-		
-		public static function getTracker($name) {
-			if (!isset(self::$registry[$name])) {
-				throw new LogicException('Unable to retrieve invocation tracker because the object does not exist in the registry');
-			}
-			
-			return self::$registry[$name];
-		}
-		
-		private static function getInvocationCount($className, $methodName) {
-			$count = 1;
-			foreach (self::$registry[$className]->getInvocations() as $invocation) {
-				if ($invocation->getMethod() === $methodName) {
-					$count++;
-				}
-			}
-			
-			return $count;
-		}
-		
 		public function addMethod($methodName, $callParent = false, $body = '') {
 			$methodType = 'generic';
 			if ($this->referenceObject->hasMethod($methodName)) {
@@ -126,10 +76,8 @@
 			
 			$code = $this->generateClassDefinition($name);
 			eval($code);
-			//print_r($code); exit;
 			
-			self::$registry[$name]     = new InvocationTracker();
-			self::$expectations[$name] = array();
+			MockRegistry::addClass($name);
 			
 			$obj = new ReflectionClass($name);
 			$obj = $obj->newInstanceArgs($constructorArgs);
@@ -174,7 +122,7 @@
 			$code       = <<<CODE
 	$modifier function $name($params) {
 		$temp1 = func_get_args();
-		$temp2 = MockObjectCreator::registerInvocation(get_class(\$this), __FUNCTION__, $temp1);
+		$temp2 = MockRegistry::registerInvocation(get_class(\$this), __FUNCTION__, $temp1);
 		if ($temp2 instanceof InvocationExpectation) {
 			//this invocation matched an invocation expectation
 			
