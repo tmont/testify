@@ -61,11 +61,15 @@
 			return $this;
 		}
 		
+		public function andToEcho($value) {
+			return $this->toEcho($value);
+		}
+		
 		public function toReturn($value) {
 			$this->returnValue = $value;
 		}
 		
-		public function andReturn($value) {
+		public function andToReturn($value) {
 			$this->toReturn($value);
 		}
 		
@@ -82,7 +86,7 @@
 		}
 		
 		protected function countIsAcceptable($count) {
-			switch ($count) {
+			switch ($this->count) {
 				case TestCase::ANY:
 					return true;
 				case TestCase::AT_LEAST_ONCE:
