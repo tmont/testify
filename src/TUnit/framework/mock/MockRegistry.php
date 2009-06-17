@@ -38,7 +38,7 @@
 				throw new LogicException('Unable to register invocation because the object does not exist in the registry');
 			}
 			
-			$count = self::getInvocationCount($className, $methodName);
+			$count = self::getInvocationCount($className, $methodName) + 1;
 			$expectation = self::$trackers[$className]->registerInvocation(new MockInvocation($className, $methodName, $args, $count));
 			return $expectation;
 		}
@@ -52,7 +52,7 @@
 		}
 		
 		private static function getInvocationCount($className, $methodName) {
-			$count = 1;
+			$count = 0;
 			foreach (self::$trackers[$className]->getInvocations() as $invocation) {
 				if ($invocation->getMethod() === $methodName) {
 					$count++;

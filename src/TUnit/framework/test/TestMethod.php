@@ -15,6 +15,9 @@
 		}
 		
 		public function run(array $listeners) {
+			//reset mock object registry
+			MockRegistry::reset();
+			
 			foreach ($listeners as $listener) {
 				$listener->beforeTestMethod($this);
 			}
