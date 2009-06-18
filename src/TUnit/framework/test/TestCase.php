@@ -69,6 +69,14 @@
 			return new MockHandler($mock);
 		}
 		
+		protected function ignore($message = '') {
+			throw new IgnoredTest($message);
+		}
+		
+		protected function fail($message = '') {
+			throw new FailedTest($message);
+		}
+		
 	}
 
 ?>
