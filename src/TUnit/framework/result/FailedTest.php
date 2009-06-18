@@ -21,7 +21,9 @@
 					if ($frame['file'] === dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestMethod.php') {
 						break;
 					}
-					$line .= $frame['file'] . ' (' . $frame['line'] . ') ';
+					
+					$line .= $frame['file'] . ' (line ' . $frame['line'] . ') ';
+					$line .= "\n      ";
 				}
 				
 				if (isset($frame['class']) || isset($frame['function'])) {
