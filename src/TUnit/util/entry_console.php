@@ -43,9 +43,8 @@
 	}
 	
 	
-	$runner = new TestRunner(array(new TestSuite('Main Test Suite', $tests)), array(new ConsoleListener()));
-	$runner->printMeta();
-	$runner->runAndPublish();
+	$runner = new TestRunner(array(new TestSuite('Main Test Suite', $tests)), array(new ConsoleListener(/*ConsoleListener::VERBOSITY_HIGH*/)));
+	$runner->run();
 	exit(0);
 
 ?>

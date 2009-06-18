@@ -195,6 +195,43 @@
 			}
 		}
 		
+		public function publishTestResults($result) {
+			if (is_array($result)) {
+				$result = new CombinedTestResult($result);
+			} else if ($result instanceof TestResult) {
+				$result = new CombinedTestResult(array($result));
+			}
+		
+			if (!($result instanceof CombinedTestResult)) {
+				throw new InvalidArgumentException('Could not convert $result to a CombinedTestResult');
+			}
+			
+			$passed  = $result->getPassedTestResults();
+			$failed  = $result->getFailedTestResults();
+			$erred   = $result->getErredTestResults();
+			$ignored = $result->getIgnoredTestResults();
+			$total   = count($passed) + count($failed) + count($erred) + count($ignored);
+			
+			$countPad = strlen($total);
+			
+			$width = 12 + $countPad + 3 + 6 + 3;
+			
+			$this->out("\n");
+			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
+			$this->out('| Passed  | ' . str_pad(count($passed), $countPad, ' ', STR_PAD_LEFT)  . ' | ' . str_pad(number_format(round(count($passed)  / $total * 100, 2), 2), 6, ' ', STR_PAD_LEFT) . '% |' . "\n");
+			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
+			$this->out('| Failed  | ' . str_pad(count($failed), $countPad, ' ', STR_PAD_LEFT)  . ' | ' . str_pad(number_format(round(count($failed)  / $total * 100, 2), 2), 6, ' ', STR_PAD_LEFT) . '% |' . "\n");
+			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
+			$this->out('| Erred   | ' . str_pad(count($erred), $countPad, ' ', STR_PAD_LEFT)   . ' | ' . str_pad(number_format(round(count($erred)   / $total * 100, 2), 2), 6, ' ', STR_PAD_LEFT) . '% |' . "\n");
+			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
+			$this->out('| Ignored | ' . str_pad(count($ignored), $countPad, ' ', STR_PAD_LEFT) . ' | ' . str_pad(number_format(round(count($ignored) / $total * 100, 2), 2), 6, ' ', STR_PAD_LEFT) . '% |' . "\n");
+			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
+			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
+			$this->out('| Total   | ' . $total . ' | ' . '100.00% |' . "\n");
+			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
+			$this->out("\n");
+		}
+		
 		public function publishTestResult(TestResult $result) {
 			$failure = $result->getFailure();
 			if ($failure instanceof TestFailure) {
@@ -203,7 +240,7 @@
 				$this->out('Test name: ' . $result->getTest()->getName() . "\n");
 				$this->out('Message:   ' . $failure->getMessage() . "\n\n");
 				$this->out($failure->getStackTrace());
-				$this->out("\n");
+				$this->out("-------------------------------\n");
 			}
 		}
 		

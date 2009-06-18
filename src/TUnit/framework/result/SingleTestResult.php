@@ -22,12 +22,6 @@
 			return 1;
 		}
 		
-		public function publish(array $listeners) {
-			foreach ($listeners as $listener) {
-				$listener->publishTestResult($this);
-			}
-		}
-		
 	}
 
 ?>

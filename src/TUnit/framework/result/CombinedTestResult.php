@@ -4,8 +4,8 @@
 		
 		protected $testResults;
 		
-		public function __construct() {
-			$this->testResults = array();
+		public function __construct(array $results = array()) {
+			$this->testResults = $results;
 		}
 		
 		public function passed() {
@@ -37,9 +37,8 @@
 		}
 		
 		public function getPassedTestResults() {
-			//use a recursive iterator here...
 			$passedTests = array();
-			foreach ($this->testResults as $testResult) {
+			foreach ($this->getAllTestResults() as $testResult) {
 				if ($testResult instanceof PassedTestResult) {
 					$passedTests[] = $testResult;
 				}
@@ -49,10 +48,9 @@
 		}
 		
 		public function getFailedTestResults() {
-			//use a recursive iterator here...
 			$failedTests = array();
-			foreach ($this->testResults as $testResult) {
-				if (!($testResult instanceof PassedTestResult)) {
+			foreach ($this->getAllTestResults() as $testResult) {
+				if ($testResult instanceof FailedTestResult) {
 					$failedTests[] = $testResult;
 				}
 			}
@@ -60,12 +58,26 @@
 			return $failedTests;
 		}
 		
-		public function publish(array $listeners) {
-			foreach ($this->getAllTestResults() as $result) {
-				foreach ($listeners as $listener) {
-					$listener->publishTestResult($result);
+		public function getIgnoredTestResults() {
+			$failedTests = array();
+			foreach ($this->getAllTestResults() as $testResult) {
+				if ($testResult instanceof IgnoredTestResult) {
+					$failedTests[] = $testResult;
 				}
 			}
+			
+			return $failedTests;
+		}
+		
+		public function getErredTestResults() {
+			$failedTests = array();
+			foreach ($this->getAllTestResults() as $testResult) {
+				if ($testResult instanceof ErredTestResult) {
+					$failedTests[] = $testResult;
+				}
+			}
+			
+			return $failedTests;
 		}
 		
 	}

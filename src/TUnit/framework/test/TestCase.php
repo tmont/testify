@@ -47,7 +47,7 @@
 			$refClass = new ReflectionClass($this);
 			$methods = array();
 			foreach ($refClass->getMethods() as $method) {
-				if (preg_match('/^[\*\s]*@test\s*$/m', $method->getDocComment())) {
+				if (preg_match('/^[\/\*\s]*@test\s*(?:\*\/)?$/m', $method->getDocComment())) {
 					$methods[] = $method;
 				}
 			}

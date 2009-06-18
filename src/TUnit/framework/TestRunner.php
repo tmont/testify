@@ -10,12 +10,12 @@
 			$this->listeners = $listeners;
 		}
 		
-		public function addTest(Testable $test) {
+		public final function addTest(Testable $test) {
 			$this->tests[] = $test;
 			return $this;
 		}
 		
-		public function addListener(TestListener $listener) {
+		public final function addListener(TestListener $listener) {
 			$this->listeners[] = $listener;
 			return $this;
 		}
@@ -36,16 +36,17 @@
 		}
 		
 		public function publishResults(array $testResults) {
-			foreach ($testResults as $testResult) {
-				$testResult->publish($this->listeners);
+			foreach ($this->listeners as $listener) {
+				$listener->publishTestResults($testResults);
 			}
 		}
 		
-		public function runAndPublish() {
+		public function run() {
+			self::printMeta();
 			$this->publishResults($this->runTests());
 		}
 		
-		public function printMeta() {
+		public static function printMeta() {
 			fwrite(STDOUT, Product::NAME . ' ' . Product::VERSION . ' (build date: ' . Product::DATE . ')' . "\n");
 			fwrite(STDOUT, '  by ' . Product::AUTHOR . "\n\n");
 		}
