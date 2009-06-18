@@ -8,7 +8,7 @@
 	function usage() {
 		$usage = new Usage(
 			'Productizer 1.0',
-			basename(__FIlE__),
+			'php ' . basename(__FIlE__),
 			'Creates the equivalent of C#.NET\'s "AssemblyInfo.cs"',
 			'Tommy Montgomery',
 			'2009'

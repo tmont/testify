@@ -19,7 +19,7 @@
 	function usage() {
 		$usage = new Usage(
 			'Manifest Builder 1.0',
-			basename(__FIlE__),
+			'php ' . basename(__FIlE__),
 			'Builds a manifest file suitable for use by Autoloader',
 			'Tommy Montgomery',
 			'2009'

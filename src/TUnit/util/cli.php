@@ -62,13 +62,20 @@
 	class CliSwitchCollection implements IteratorAggregate {
 		
 		private $switches;
+		private $switchArg;
 		
 		public function __construct() {
 			$this->switches = array();
+			$this->switchArg = null;
 		}
 		
 		public function addSwitch(CliSwitch $switch) {
-			$this->switches[] = $switch;
+			if ($switch->longName === null) {
+				$this->switchArg = $switch;
+			} else {
+				$this->switches[] = $switch;
+			}
+			
 			return $this;
 		}
 		
@@ -96,6 +103,10 @@
 			}
 			
 			return $switches;
+		}
+		
+		public function getSwitchArg() {
+			return $this->switchArg;
 		}
 		
 		public function getIterator() {
@@ -152,8 +163,6 @@
 				//echo $length . "\n";
 				$this->maxSwitchLength = max($this->maxSwitchLength, $length);
 			}
-			
-			//echo $this->maxSwitchLength; exit;
 		}
 		
 		public function __toString() {
@@ -162,8 +171,11 @@
 			$usage .= (!empty($this->copyright)) ? '  ' . $this->copyright . "\n" : '';
 			$usage .= "\n";
 			
+			$usage .= $this->description;
+			$usage .= "\n\n";
+			
 			$usage .= "USAGE\n";
-			$usageData = '  php ' . $this->script;
+			$usageData = '  ' . $this->script;
 			
 			$switchData = "REQUIRED\n";
 			
@@ -185,6 +197,14 @@
 				$switchData .= $x;
 			}
 			
+			$arg = $this->switches->getSwitchArg();
+			if ($arg !== null) {
+				$x = '  ' . $arg->value;
+				$x .= str_repeat(' ' , $this->maxSwitchLength - strlen($x));
+				$x .= wordwrap($arg->description, self::LINE_LENGTH - strlen($x), "\n" . str_repeat(' ', strlen($x))) . "\n";
+				$switchData .= $x;
+			}
+			
 			$switchData .= "\nOPTIONAL\n";
 			foreach ($switches['optional'] as $switch) {
 				$usageData .= ' [--' . $switch->longName;
@@ -203,8 +223,11 @@
 				$switchData .= $x;
 			}
 			
-			$usage .= wordwrap($usageData, self::LINE_LENGTH - 2, "\n  ");
+			if ($arg !== null) {
+				$usageData .= ' ' . $arg->value;
+			}
 			
+			$usage .= wordwrap($usageData, self::LINE_LENGTH - 2, "\n  ");
 			$usage .= "\n\n" . $switchData . "\n";
 			
 			return $usage;
