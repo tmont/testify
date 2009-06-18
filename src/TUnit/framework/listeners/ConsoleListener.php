@@ -210,11 +210,11 @@
 			$failed  = $result->getFailedTestResults();
 			$erred   = $result->getErredTestResults();
 			$ignored = $result->getIgnoredTestResults();
-			$total   = count($passed) + count($failed) + count($erred) + count($ignored);
 			
+			//summary
+			$total    = count($passed) + count($failed) + count($erred) + count($ignored);
 			$countPad = strlen($total);
-			
-			$width = 12 + $countPad + 3 + 6 + 3;
+			$width    = 12 + $countPad + 3 + 6 + 3;
 			
 			$this->out("\n");
 			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
@@ -230,17 +230,49 @@
 			$this->out('| Total   | ' . $total . ' | ' . '100.00% |' . "\n");
 			$this->out('+' . str_repeat('-', $width - 2) . '+' . "\n");
 			$this->out("\n");
-		}
-		
-		public function publishTestResult(TestResult $result) {
-			$failure = $result->getFailure();
-			if ($failure instanceof TestFailure) {
+			
+			
+			$padLength = 60;
+			
+			//failures
+			if (count($failed) > 0) {
 				$this->out("\n");
-				$this->out("----------- FAILURE -----------\n");
-				$this->out('Test name: ' . $result->getTest()->getName() . "\n");
-				$this->out('Message:   ' . $failure->getMessage() . "\n\n");
-				$this->out($failure->getStackTrace());
-				$this->out("-------------------------------\n");
+				$this->out('FAILURES');
+				foreach ($failed as $i => $failure) {
+					$this->out("\n");
+					$this->out(str_pad(' ' . ($i + 1) . ' ', $padLength, '-', STR_PAD_BOTH) . "\n");
+					$this->out('Test name: ' . $failure->getTest()->getName() . "\n");
+					$this->out('Message:   ' . $failure->getFailure()->getMessage() . "\n\n");
+					$this->out($failure->getFailure()->getStackTrace() . "\n");
+					$this->out(str_repeat('-', $padLength) . "\n");
+				}
+			}
+			
+			//errors
+			if (count($erred) > 0) {
+				$this->out("\n");
+				$this->out('ERRORS');
+				foreach ($erred as $i => $error) {
+					$this->out("\n");
+					$this->out(str_pad(' ' . ($i + 1) . ' ', $padLength, '-', STR_PAD_BOTH) . "\n");
+					$this->out('Test name: ' . $error->getTest()->getName() . "\n");
+					$this->out('Message:   ' . $error->getFailure()->getMessage() . "\n\n");
+					$this->out($error->getFailure()->getStackTrace() . "\n");
+					$this->out(str_repeat('-', $padLength) . "\n");
+				}
+			}
+			
+			//ignores
+			if (count($ignored) > 0) {
+				$this->out("\n");
+				$this->out('IGNORES');
+				foreach ($ignored as $i => $ignore) {
+					$this->out("\n");
+					$this->out(str_pad(' ' . ($i + 1) . ' ', $padLength, '-', STR_PAD_BOTH) . "\n");
+					$this->out('Test name: ' . $ignore->getTest()->getName() . "\n");
+					$this->out('Message:   ' . $ignore->getFailure()->getMessage() . "\n");
+					$this->out(str_repeat('-', $padLength) . "\n");
+				}
 			}
 		}
 		
