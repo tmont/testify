@@ -3,18 +3,27 @@
 	class TestCase implements Testable {
 		
 		protected $name;
+		private   $autoVerify;
 		
 		const ANY           = -1;
 		const AT_LEAST_ONCE = -2;
 		
-		protected static $mockStorage = array();
 		
 		public function __construct($name) {
-			$this->name = $name;
+			$this->name       = $name;
+			$this->autoVerify = true;
 		}
 		
-		public function getName() {
+		public final function getName() {
 			return $this->name;
+		}
+		
+		public final function getAutoVerify() {
+			return $this->autoVerify;
+		}
+		
+		public final function setAutoVerify($autoVerify) {
+			$this->autoVerify = (bool)$autoVerify;
 		}
 		
 		public function setUp() {

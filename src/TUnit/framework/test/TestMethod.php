@@ -15,9 +15,6 @@
 		}
 		
 		public function run(array $listeners) {
-			//reset mock object registry
-			MockRegistry::reset();
-			
 			foreach ($listeners as $listener) {
 				$listener->beforeTestMethod($this);
 			}
@@ -28,6 +25,16 @@
 			$this->testCase->setUp();
 			try {
 				$this->method->invoke($this->testCase);
+				
+				//verify if necessary
+				if ($this->testCase->getAutoVerify()) {
+					foreach (MockRegistry::getTrackers() as $tracker) {
+						if (!$tracker->verify()) {
+							throw new FailedTest('Verification of InvocationTracker failed');
+						}
+					}
+				}
+				
 				foreach ($listeners as $listener) {
 					$listener->onTestMethodPassed($this);
 				}
@@ -48,6 +55,9 @@
 			foreach ($listeners as $listener) {
 				$listener->afterTestMethod($this);
 			}
+			
+			//reset mock object registry
+			MockRegistry::reset();
 			
 			return $result;
 		}

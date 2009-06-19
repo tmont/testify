@@ -8,6 +8,7 @@
 		protected $args;
 		protected $returnValue;
 		protected $echoString;
+		protected $verified;
 		
 		public function __construct($methodName) {
 			$this->method       = $methodName;
@@ -15,6 +16,7 @@
 			$this->args         = array();
 			$this->returnValue  = null;
 			$this->echoString   = null;
+			$this->verified     = false;
 		}
 		
 		public final function getMethod() {
@@ -94,6 +96,14 @@
 				default:
 					return $count === $this->count;
 			}
+		}
+		
+		public final function isVerified() {
+			return $this->verified;
+		}
+		
+		public final function setVerified($verified) {
+			$this->verified = (bool)$verified;
 		}
 		
 	}

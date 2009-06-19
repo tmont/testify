@@ -73,6 +73,19 @@
 			return rtrim($list, ', ');
 		}
 		
+		public static function arrayFlatten($arr) {
+			$flattened = array();
+			if (is_array($arr)) {
+				foreach ($arr as $value) {
+					$flattened = array_merge($flattened, self::arrayFlatten($value));
+				}
+			} else {
+				$flattened[] = $arr;
+			}
+			
+			return $flattened;
+		}
+		
 	}
 
 ?>

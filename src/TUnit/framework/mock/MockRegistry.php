@@ -25,6 +25,10 @@
 			self::$expectations[$className][] = $expectation;
 		}
 		
+		public static function getAllExpectations() {
+			return Util::arrayFlatten(self::$expectations);
+		}
+		
 		public static function getExpectations($className) {
 			if (!isset(self::$expectations[$className])) {
 				throw new LogicException('Unable to add invocation expectation because the object does not exist in the registry');
@@ -49,6 +53,10 @@
 			}
 			
 			return self::$trackers[$name];
+		}
+		
+		public static function getTrackers() {
+			return self::$trackers;
 		}
 		
 		private static function getInvocationCount($className, $methodName) {
