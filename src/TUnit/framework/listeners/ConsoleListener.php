@@ -213,6 +213,11 @@
 			
 			//summary
 			$total    = count($passed) + count($failed) + count($erred) + count($ignored);
+			
+			if ($total === 0) {
+				return;
+			}
+			
 			$countPad = strlen($total);
 			$width    = 12 + $countPad + 3 + 6 + 3;
 			
