@@ -1,6 +1,6 @@
 <?php
 
-	abstract class TestRunner implements Countable {
+	abstract class TestRunner implements RecursivelyCountable {
 		
 		protected $tests;
 		protected $listeners;
@@ -24,6 +24,10 @@
 		
 		public final function getEndTime() {
 			return $this->endTime;
+		}
+		
+		public final function getTests() {
+			return $this->tests;
 		}
 		
 		public final function warn($message) {
@@ -109,6 +113,10 @@
 		
 		public function count() {
 			return count($this->tests);
+		}
+		
+		public function getTestCount() {
+			return Util::countTests($this->tests);
 		}
 		
 		protected abstract function getAllowableOptions();

@@ -5,13 +5,16 @@
 		protected $name;
 		private   $autoVerify;
 		
+		private $testableMethods;
+		
 		const ANY           = -1;
 		const AT_LEAST_ONCE = -2;
 		
 		
 		public function __construct($name) {
-			$this->name       = $name;
-			$this->autoVerify = true;
+			$this->name            = $name;
+			$this->autoVerify      = true;
+			$this->testableMethods = array();
 		}
 		
 		public final function getName() {
@@ -26,11 +29,11 @@
 			$this->autoVerify = (bool)$autoVerify;
 		}
 		
-		public function setUp() {
+		protected function setUp() {
 			
 		}
 		
-		public function tearDown() {
+		protected function tearDown() {
 		
 		}
 		
@@ -40,9 +43,10 @@
 			}
 			
 			$result = new CombinedTestResult();
-			foreach ($this->getTestableMethods() as $method) {
-				$testMethod = new TestMethod($this, $method);
+			foreach ($this->getTestableMethods() as $testMethod) {
+				$this->setUp();
 				$result->addTestResult($testMethod->run($listeners));
+				$this->tearDown();
 			}
 			
 			foreach ($listeners as $listener) {
@@ -52,16 +56,23 @@
 			return $result;
 		}
 		
-		protected final function getTestableMethods() {
-			$refClass = new ReflectionClass($this);
-			$methods = array();
-			foreach ($refClass->getMethods() as $method) {
-				if (preg_match('/^[\/\*\s]*@test\s*(?:\*\/)?$/m', $method->getDocComment())) {
-					$methods[] = $method;
+		public final function getTestableMethods() {
+			if (empty($this->testableMethods)) {
+				$refClass = new ReflectionClass($this);
+				$methods = array();
+				foreach ($refClass->getMethods() as $method) {
+					if (
+						$method->getDeclaringClass()->getName() !== __CLASS__ &&
+						preg_match('/^[\/\*\s]*@test\s*(?:\*\/)?$/m', $method->getDocComment())
+					) {
+						$methods[] = new TestMethod(Util::getClosure($this, $method->getName()), get_class($this) . '::' . $method->getName(), $this->getAutoVerify());
+					}
 				}
+				
+				$this->testableMethods = $methods;
 			}
 			
-			return $methods;
+			return $this->testableMethods;
 		}
 		
 		protected function createMockObject($className, array $methods = array(), array $args = array(), $name = '', $callParent = true) {
@@ -84,6 +95,14 @@
 		
 		protected function fail($message = '') {
 			throw new FailedTest($message);
+		}
+		
+		public function count() {
+			return count($this->getTestableMethods());
+		}
+		
+		public function getTestCount() {
+			return Util::countTests($this->testableMethods);
 		}
 		
 	}

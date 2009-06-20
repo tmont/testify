@@ -41,8 +41,13 @@
 		
 		public function afterTestRunner(TestRunner $runner) {
 			$elapsedTime = $runner->getEndTime() - $runner->getStartTime();
-			$numTests = (count($runner) === 1) ? '1 test' : count($runner) . ' tests';
-			$this->out('Ran ' . $numTests . ' in ' . round($elapsedTime, 3) . ' seconds' . "\n");
+			$testCount   = $runner->getTestCount();
+			//print_r($runner->getTests());
+			$suites      = $testCount['suite'] === 1  ? '1 test suite'  : $testCount['suite'] . ' test suites';
+			$cases       = $testCount['case'] === 1   ? '1 test case'   : $testCount['case']  . ' test cases';
+			$methods     = $testCount['method'] === 1 ? '1 test method' : $testCount['method'] . ' test methods';
+			
+			$this->out("Ran $suites, $cases and $methods in " . round($elapsedTime, 3) . ' seconds' . "\n");
 		}
 		
 		public function beforeTestSuite(TestSuite $suite) {

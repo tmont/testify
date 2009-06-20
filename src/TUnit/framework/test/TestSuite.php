@@ -22,9 +22,13 @@
 		
 		}
 		
-		public function addTest(Testable $test) {
+		public final function addTest(Testable $test) {
 			$this->tests[] = $test;
 			return $this;
+		}
+		
+		public final function getTests() {
+			return $this->tests;
 		}
 		
 		public function run(array $listeners) {
@@ -51,6 +55,14 @@
 			}
 			
 			return $result;
+		}
+		
+		public function count() {
+			return count($this->tests);
+		}
+		
+		public function getTestCount() {
+			return Util::countTests($this->tests);
 		}
 		
 	}

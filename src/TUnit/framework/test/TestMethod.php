@@ -2,16 +2,18 @@
 
 	/* internal */ class TestMethod implements Testable {
 		
-		protected $testCase;
-		protected $method;
+		protected $autoVerify;
+		protected $closure;
+		protected $name;
 		
-		public function __construct(TestCase $testCase, ReflectionMethod $method) {
-			$this->testCase = $testCase;
-			$this->method   = $method;
+		public function __construct($closure, $name, $autoVerify) {
+			$this->closure    = $closure;
+			$this->autoVerify = (bool)$autoVerify;
+			$this->name       = $name;
 		}
 		
 		public function getName() {
-			return $this->method->getDeclaringClass()->getName() . '::' . $this->method->getName();
+			return $this->name;
 		}
 		
 		public function run(array $listeners) {
@@ -22,12 +24,11 @@
 			$result  = null;
 			$failure = null;
 			
-			$this->testCase->setUp();
 			try {
-				$this->method->invoke($this->testCase);
+				call_user_func($this->closure);
 				
 				//verify if necessary
-				if ($this->testCase->getAutoVerify()) {
+				if ($this->autoVerify) {
 					foreach (MockRegistry::getTrackers() as $tracker) {
 						if (!$tracker->verify()) {
 							throw new FailedTest('Verification of InvocationTracker failed');
@@ -50,7 +51,6 @@
 			}
 			
 			$result = $this->createTestResult($failure);
-			$this->testCase->tearDown();
 			
 			foreach ($listeners as $listener) {
 				$listener->afterTestMethod($this);
@@ -90,6 +90,14 @@
 					$listener->onTestMethodErred($this);
 				}
 			}
+		}
+		
+		public function count() {
+			return 1;
+		}
+		
+		public function getTestCount() {
+			return Util::countTests(array($this));
 		}
 		
 	}
