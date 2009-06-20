@@ -95,7 +95,19 @@
 		const DATE    = '$datetime';
 		/**#@-*/
 		
+		/**
+		 * @ignore
+		 */
 		private function __construct() {}
+		
+		/**
+		 * Gets a human-readable version string
+		 *
+		 * @return string
+		 */
+		public static function getVersionString() {
+			return self::NAME . ' ' . self::VERSION . ' (' . self::DATE . ')';
+		}
 		
 	}
 	

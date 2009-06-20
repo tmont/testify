@@ -2,8 +2,8 @@
 
 	class ConsoleListener extends TestListener {
 		
-		private $verbosity;
-		private $currentLineLength;
+		protected $verbosity;
+		protected $currentLineLength;
 		
 		const LINE_LENGTH      = 64;
 		
@@ -16,11 +16,11 @@
 			$this->currentLineLength = 0;
 		}
 		
-		private function out($text) {
+		protected function out($text) {
 			fwrite(STDOUT, $text);
 		}
 		
-		private function err($text) {
+		protected function err($text) {
 			fwrite(STDERR, $text);
 		}
 		
@@ -32,6 +32,17 @@
 			
 			$this->out($text);
 			$this->currentLineLength = strlen($text);
+		}
+		
+		public function beforeTestRunner(TestRunner $runner) {
+			$this->out(Product::getVersionString() . "\n");
+			$this->out('  by ' . Product::AUTHOR . "\n\n");
+		}
+		
+		public function afterTestRunner(TestRunner $runner) {
+			$elapsedTime = $runner->getEndTime() - $runner->getStartTime();
+			$numTests = (count($runner) === 1) ? '1 test' : count($runner) . ' tests';
+			$this->out('Ran ' . $numTests . ' in ' . round($elapsedTime, 3) . ' seconds' . "\n");
 		}
 		
 		public function beforeTestSuite(TestSuite $suite) {

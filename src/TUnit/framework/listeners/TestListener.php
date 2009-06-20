@@ -6,8 +6,16 @@
 			
 		}
 		
-		public function beforeTestSuite(TestSuite $suite) {
+		public function beforeTestRunner(TestRunner $runner) {
+		
+		}
+		
+		public function afterTestRunner(TestRunner $runner) {
 			
+		}
+		
+		public function beforeTestSuite(TestSuite $suite) {
+		
 		}
 		
 		public function afterTestSuite(TestSuite $suite) {
@@ -67,7 +75,7 @@
 		}
 		
 		public function publishTestResult(TestResult $result) {
-			
+		
 		}
 		
 	}

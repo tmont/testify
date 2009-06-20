@@ -1,15 +1,29 @@
 <?php
 
-	abstract class BaseTestRunner {
+	abstract class TestRunner implements Countable {
 		
 		protected $tests;
 		protected $listeners;
 		protected $options;
 		
+		private $startTime;
+		private $endTime;
+		
 		public function __construct(array $tests = array(), array $listeners = array(), array $options = array()) {
 			$this->tests     = $tests;
 			$this->listeners = $listeners;
 			$this->options   = (!empty($options)) ? $this->parseOptions($options) : array();
+			
+			$this->startTime = -1;
+			$this->endTime   = -1;
+		}
+		
+		public final function getStartTime() {
+			return $this->startTime;
+		}
+		
+		public final function getEndTime() {
+			return $this->endTime;
 		}
 		
 		public final function warn($message) {
@@ -79,7 +93,23 @@
 			}
 		}
 		
-		public abstract function run();
+		public final function run() {
+			foreach ($this->listeners as $listener) {
+				$listener->beforeTestRunner($this);
+			}
+			
+			$this->startTime = microtime(true);
+			$this->publishResults($this->runTests());
+			$this->endTime = microtime(true);
+			
+			foreach ($this->listeners as $listener) {
+				$listener->afterTestRunner($this);
+			}
+		}
+		
+		public function count() {
+			return count($this->tests);
+		}
 		
 		protected abstract function getAllowableOptions();
 		
