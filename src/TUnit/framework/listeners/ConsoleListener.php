@@ -1,29 +1,114 @@
 <?php
 
+	/**
+	 * ConsoleListener
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+
+	/**
+	 * Test listener for console-initiated test
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class ConsoleListener extends TestListener {
 		
+		/**
+		 * @var int
+		 */
 		protected $verbosity;
+		
+		/**
+		 * The current line length
+		 *
+		 * @var int
+		 */
 		protected $currentLineLength;
 		
+		/**
+		 * Maximum line length
+		 *
+		 * @var int
+		 */
 		const LINE_LENGTH      = 64;
 		
+		/**
+		 * Low verbosity
+		 *
+		 * @var int
+		 */
 		const VERBOSITY_LOW    = 0;
+		
+		/**
+		 * Normal verbosity
+		 *
+		 * @var int
+		 */
 		const VERBOSITY_MEDIUM = 1;
+		
+		/**
+		 * High verbosity
+		 *
+		 * @var int
+		 */
 		const VERBOSITY_HIGH   = 2;
 		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  int $verbosity
+		 */
 		public function __construct($verbosity = self::VERBOSITY_MEDIUM) {
 			$this->verbosity = intval($verbosity);
 			$this->currentLineLength = 0;
 		}
 		
+		/**
+		 * Writes to stdout
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $text
+		 */
 		protected function out($text) {
 			fwrite(STDOUT, $text);
 		}
 		
+		/**
+		 * Writes to stderr
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $text
+		 */
 		protected function err($text) {
 			fwrite(STDERR, $text);
 		}
 		
+		/**
+		 * Writes a test method result
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    out()
+		 * 
+		 * @param  string $text
+		 */
 		private function writeTestMethodResult($text) {
 			if ($this->currentLineLength >= self::LINE_LENGTH) {
 				$this->out("\n");
@@ -34,15 +119,36 @@
 			$this->currentLineLength = strlen($text);
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestRunner $runner
+		 */
 		public function beforeTestRunner(TestRunner $runner) {
 			$this->out(Product::getVersionString() . "\n");
 			$this->out('  by ' . Product::AUTHOR . "\n\n");
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    TestRunner::getEndTime()
+		 * @uses    TestRunner::getStartTime()
+		 * @uses    TestRunner::getTestCount()
+		 * 
+		 * @param  TestRunner $runner
+		 */
 		public function afterTestRunner(TestRunner $runner) {
 			$elapsedTime = $runner->getEndTime() - $runner->getStartTime();
 			$testCount   = $runner->getTestCount();
-			//print_r($runner->getTests());
+			
 			$suites      = $testCount['suite'] === 1  ? '1 test suite'  : $testCount['suite'] . ' test suites';
 			$cases       = $testCount['case'] === 1   ? '1 test case'   : $testCount['case']  . ' test cases';
 			$methods     = $testCount['method'] === 1 ? '1 test method' : $testCount['method'] . ' test methods';
@@ -50,6 +156,15 @@
 			$this->out("Ran $suites, $cases and $methods in " . round($elapsedTime, 3) . ' seconds' . "\n");
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestSuite $suite
+		 */
 		public function beforeTestSuite(TestSuite $suite) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -62,6 +177,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestSuite $suite
+		 */
 		public function afterTestSuite(TestSuite $suite) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -74,6 +198,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestCase $test
+		 */
 		public function beforeTestCase(TestCase $test) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -86,6 +219,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestCase $test
+		 */
 		public function afterTestCase(TestCase $test) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -98,6 +240,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestCase $test
+		 */
 		public function onTestCaseFailed(TestCase $test) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -110,6 +261,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestCase $test
+		 */
 		public function onTestCasePassed(TestCase $test) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -122,6 +282,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestMethod $method
+		 */
 		public function beforeTestMethod(TestMethod $method) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -133,6 +302,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestMethod $method
+		 */
 		public function afterTestMethod(TestMethod $method) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_HIGH:
@@ -145,6 +323,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestMethod $method
+		 */
 		public function onTestMethodFailed(TestMethod $method) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_LOW:
@@ -159,6 +346,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestMethod $method
+		 */
 		public function onTestMethodPassed(TestMethod $method) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_LOW:
@@ -173,6 +369,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestMethod $method
+		 */
 		public function onTestMethodErred(TestMethod $method) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_LOW:
@@ -187,6 +392,15 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  TestMethod $method
+		 */
 		public function onTestMethodIgnored(TestMethod $method) {
 			switch ($this->verbosity) {
 				case self::VERBOSITY_LOW:
@@ -201,16 +415,48 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  mixed $message
+		 */
 		public function onFrameworkError($message) {
 			$this->err('ERROR: ' . $message);
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  mixed $message
+		 */
 		public function onFrameworkWarning($message) {
 			if ($this->verbosity > self::VERBOSITY_LOW) {
 				$this->out('WARNING: ' . $message);
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    CombinedTestResult::getPassedTestResults()
+		 * @uses    CombinedTestResult::getFailedTestResults()
+		 * @uses    CombinedTestResult::getErredTestResults()
+		 * @uses    CombinedTestResult::getIgnoredTestResults()
+		 * 
+		 * @param  mixed $result
+		 * @throws InvalidArgumentException
+		 */
 		public function publishTestResults($result) {
 			if (is_array($result)) {
 				$result = new CombinedTestResult($result);
