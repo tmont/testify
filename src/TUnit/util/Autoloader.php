@@ -3,19 +3,17 @@
 	/**
 	 * Autoloader
 	  *
-	 * @package    Library
-	 * @subpackage Utilities
-	 * @version    1.0
-	 * @since      1.0
+	 * @package TUnit
+	 * @version 1.0
+	 * @since   1.0
 	 */
 	
 	/**
 	 * Bootstraps each NowhereConcave package via autoload
 	 *
-	 * @package    Library
-	 * @subpackage Utilities
-	 * @version    1.0
-	 * @since      1.0
+	 * @package TUnit
+	 * @version 1.0
+	 * @since   1.0
 	 */
 	final class Autoloader {
 		

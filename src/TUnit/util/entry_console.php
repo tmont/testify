@@ -1,8 +1,31 @@
 <?php
 
+	/**
+	 * Entry point for console test runner
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+
+	/**
+	 * @see Cli
+	 */
 	require_once 'cli.php';
+	
+	/**
+	 * Bootstraps TUnit
+	 */
 	require_once dirname(dirname(__FILE__)) . '/bootstrap.php';
 	
+	/**
+	 * Prints usage
+	 *
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	function usage() {
 		$usage = new Usage(
 			Product::NAME . ' ' . Product::VERSION . ' (' . Product::DATE . ')',

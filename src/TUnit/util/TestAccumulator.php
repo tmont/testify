@@ -1,7 +1,37 @@
 <?php
 
+	/**
+	 * TestAccumulator
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+
+	/**
+	 * Accumulates test
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class TestAccumulator {
 		
+		/**
+		 * Gets all tests in the specified paths
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    getTestsFromDir()
+		 * @uses    getTestsFromFile()
+		 * 
+		 * @param  array $paths
+		 * @param  bool  $recursive
+		 * @return array An array of {@link Testable}s
+		 */
 		public static function getTests(array $paths, $recursive = true) {
 			$tests = array();
 			
@@ -17,6 +47,18 @@
 			return $tests;
 		}
 		
+		/**
+		 * Gets all tests in the specified directory
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    getTestsFromFile()
+		 * 
+		 * @param  mixed $dir
+		 * @param  bool  $recursive
+		 * @return array
+		 */
 		public static function getTestsFromDir($dir, $recursive = true) {
 			$iterator = ($recursive) ? new RecursivePhpFileIterator($dir) : new PhpFileIterator($dir);
 			
@@ -31,6 +73,16 @@
 			return $tests;
 		}
 		
+		/**
+		 * Gets all tests from the specified file
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $file
+		 * @return array
+		 */
 		public static function getTestsFromFile($file) {
 			$tests = array();
 			

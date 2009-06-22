@@ -1,7 +1,31 @@
 <?php
 
+	/**
+	 * Cli, Usage, CliSwitch, CliSwitchCollection
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+
+	/**
+	 * Cli helper
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class Cli {
 		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 */
 		private function __construct() {}
 		
 		/**
@@ -44,31 +68,106 @@
 	}
 	
 	class CliSwitch {
+		
+		/**
+		 * Long name of the switch
+		 *
+		 * @var string
+		 */
 		public $longName;
+		
+		/**
+		 * Short name of the switch
+		 *
+		 * @var string
+		 */
 		public $shortName;
+		
+		/**
+		 * Shether this switch is required or optional
+		 *
+		 * @var bool
+		 */
 		public $required;
+		
+		/**
+		 * The value of the switch
+		 *
+		 * @var string
+		 */
 		public $value;
+		
+		/**
+		 * Description of the switch
+		 *
+		 * @var mixed
+		 */
 		public $description;
 		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $longName
+		 * @param  string $shortName
+		 * @param  bool   $required
+		 * @param  string $value
+		 * @param  string $description
+		 */
 		public function __construct($longName, $shortName = '', $required = true, $value = null, $description = '') {
-			$this->longName = $longName;
-			$this->shortName = $shortName;
-			$this->required = $required;
-			$this->value = $value;
+			$this->longName    = $longName;
+			$this->shortName   = $shortName;
+			$this->required    = $required;
+			$this->value       = $value;
 			$this->description = $description;
 		}
 	}
 	
+	/**
+	 * Represents a collection of {@link CliSwitch}es
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class CliSwitchCollection implements IteratorAggregate {
 		
+		/**
+		 * @var array
+		 */
 		private $switches;
+		
+		/**
+		 * @var CliSwitch
+		 */
 		private $switchArg;
 		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 */
 		public function __construct() {
-			$this->switches = array();
+			$this->switches  = array();
 			$this->switchArg = null;
 		}
 		
+		/**
+		 * Adds a switch to the collection
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  CliSwitch $switch
+		 * @return CliSwitchCollection
+		 */
 		public function addSwitch(CliSwitch $switch) {
 			if ($switch->longName === null) {
 				$this->switchArg = $switch;
@@ -79,6 +178,16 @@
 			return $this;
 		}
 		
+		/**
+		 * Gets a switch by its short or long name
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $longOrShortName
+		 * @return CliSwitch|null
+		 */
 		public function getSwitch($longOrShortName) {
 			foreach ($this->switches as $switch) {
 				if ($switch->longName == $longOrShortName || $switch->shortName == $longOrShortName) {
@@ -89,6 +198,15 @@
 			return null;
 		}
 		
+		/**
+		 * Segregates the switches into required and optional
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return array Array with keys "required" and "optional"
+		 */
 		public function segregateSwitches() {
 			$switches = array(
 				'required' => array(),
@@ -105,27 +223,102 @@
 			return $switches;
 		}
 		
+		/**
+		 * Gets the switch representing the arguments
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return CliSwitch
+		 */
 		public function getSwitchArg() {
 			return $this->switchArg;
 		}
 		
+		/**
+		 * Gets an iterator
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return ArrayIterator
+		 */
 		public function getIterator() {
 			return new ArrayIterator($this->switches);
 		}
 		
 	}
 
+	/**
+	 * Helpful class for printing usage
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class Usage {
 		
+		/**
+		 * @var array
+		 */
 		private $switches;
+		
+		/**
+		 * Name of the program
+		 *
+		 * @var string
+		 */
 		private $name;
+		
+		/**
+		 * Name of the script
+		 *
+		 * @var string
+		 */
 		private $script;
+		
+		/**
+		 * Description of the program
+		 *
+		 * @var string
+		 */
 		private $description;
+		
+		/**
+		 * Copyright information
+		 *
+		 * @var string
+		 */
 		private $copyright;
+		
+		/**
+		 * @var int
+		 */
 		private $maxSwitchLength;
 		
+		/**
+		 * Max line length
+		 *
+		 * @var int
+		 */
 		const LINE_LENGTH = 80;
 		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $name
+		 * @param  string $script
+		 * @param  string $description
+		 * @param  string $author
+		 * @param  string $date
+		 */
 		public function __construct($name, $script, $description, $author = null, $date = null) {
 			$this->switches = array(array(), array());
 			$this->maxSwitchLength = 0;
@@ -138,6 +331,18 @@
 				: (($author !== null) ? "by $author" : '');
 		}
 		
+		/**
+		 * Magic function __get
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  mixed $key
+		 * @throws InvalidArgumentException
+		 * @return mixed
+		 * @ignore
+		 */
 		public function __get($key) {
 			if ($key === 'switches') {
 				return $this->switches;
@@ -146,6 +351,16 @@
 			throw new InvalidArgumentException('Invalid property');
 		}
 		
+		/**
+		 * Sets the switch collection
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    CliSwitchCollection::getIterator()
+		 * 
+		 * @param  CliSwitchCollection $switches
+		 */
 		public function setSwitches(CliSwitchCollection $switches) {
 			$this->switches = $switches;
 			
@@ -165,6 +380,16 @@
 			}
 		}
 		
+		/**
+		 * Gets a string representation of this object
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    CliSwitchCollection::segregateSwitches()
+		 * 
+		 * @return string
+		 */
 		public function __toString() {
 			$this->maxSwitchLength += 2;
 			$usage  = $this->name . "\n";
