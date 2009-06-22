@@ -203,7 +203,7 @@
 		 */
 		protected final function parseOptions(array $unparsed) {
 			$allowedOptions = $this->getAllowableOptions();
-			$options = array_fill_keys(array_key($allowedOptions), null);
+			$options = array_fill_keys(array_keys($allowedOptions), null);
 			foreach ($unparsed as $option => $value) {
 				if (!isset($allowedOptions[$option])) {
 					throw new InvalidOptionException($option);

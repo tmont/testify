@@ -43,37 +43,51 @@
 	
 	global $switches;
 	$switches = new CliSwitchCollection();
-	$switches->addSwitch(new CliSwitch(null, null, true, '<files>', 'Files and/or directories to parse for test cases'))
-	         ->addSwitch(new CliSwitch('help', 'h', false, null, 'Display this help message (also --usage)'))
-	         ->addSwitch(new CliSwitch('recursive', null, false, null, 'Recurse into subdirectories'))
-	         ->addSwitch(new CliSwitch('bootstrap', 'b', false, 'file', 'File to include before each test'));
+	$switches->addSwitch(new CliSwitch(null,        null, true, '<files>', 'Files and/or directories to parse for test cases'))
+	         ->addSwitch(new CliSwitch('help',      'h',  false, null,     'Display this help message (also --usage)'))
+	         ->addSwitch(new CliSwitch('usage',     null, false, null,     'Display this help message'))
+	         ->addSwitch(new CliSwitch('recursive', null, false, null,     'Recurse into subdirectories'))
+	         ->addSwitch(new CliSwitch('bootstrap', 'b',  false, 'file',   'File to include before tests are run'));
 
 	array_shift($argv);
 	$args = Cli::parseArgs($argv, $switches);
-	//print_r($args); exit;
 	
-	$localSwitches = $args['switches'];
-	$localArgs     = $args['args'];
+	$options = $args['switches'];
+	$args    = $args['args'];
 	
-	if (isset($localSwitches['help'])) {
+	if (isset($options['help']) || isset($options['usage'])) {
 		usage();
 		exit(0);
 	}
 	
-	if (empty($localArgs)) {
+	if (empty($args)) {
 		usage();
 		exit(1);
 	}
 	
 	//accumulate tests
-	$tests = TestAccumulator::getTests($localArgs, isset($localSwitches['recursive']));
+	$tests = TestAccumulator::getTests($args, isset($options['recursive']));
 	
 	if (empty($tests)) {
 		fwrite(STDERR, 'Found no TestCase subclasses in the given files');
 		exit(1);
 	}
 	
-	$runner = new ConsoleTestRunner(array(new TestSuite('Main Test Suite', $tests)), array(new ConsoleListener(/*ConsoleListener::VERBOSITY_HIGH*/)), $localSwitches);
+	if (isset($options['bootstrap'])) {
+		if (!is_file($options['bootstrap'])) {
+			fwrite(STDERR, 'Bootstrap file given (' . $options['bootstrap'] . ') is not a file');
+			exit(1);
+		}
+		
+		require_once $options['bootstrap'];
+	}
+	
+	$runner = new ConsoleTestRunner(
+		array(new TestSuite('Main Test Suite', $tests)),
+		array(new ConsoleListener()),
+		$options
+	);
+	
 	$runner->run();
 	exit(0);
 
