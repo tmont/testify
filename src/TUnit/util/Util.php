@@ -121,8 +121,7 @@
 			}
 			
 			$closure = create_function('',
-			'
-				$args = func_get_args();
+				'$args = func_get_args();
 				static $obj = null;
 				
 				if ($obj === null && isset($args[0]) && is_object($args[0])) {

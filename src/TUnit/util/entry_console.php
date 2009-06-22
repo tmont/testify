@@ -21,7 +21,7 @@
 	global $switches;
 	$switches = new CliSwitchCollection();
 	$switches->addSwitch(new CliSwitch(null, null, true, '<files>', 'Files and/or directories to parse for test cases'))
-	         ->addSwitch(new CliSwitch('help', 'h', false, null, 'Display this help message (--usage is an alias)'))
+	         ->addSwitch(new CliSwitch('help', 'h', false, null, 'Display this help message (also --usage)'))
 	         ->addSwitch(new CliSwitch('recursive', null, false, null, 'Recurse into subdirectories'))
 	         ->addSwitch(new CliSwitch('bootstrap', 'b', false, 'file', 'File to include before each test'));
 
