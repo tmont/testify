@@ -16,5 +16,7 @@
 	
 	Autoloader::loadClassMapFromFile(dirname(__FILE__) . '/manifest.php');
 	spl_autoload_register('Autoloader::autoload');
+	
+	CoverageFilter::addDefaultFilters();
 
 ?>

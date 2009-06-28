@@ -108,6 +108,8 @@
 						$ref = new ReflectionClass($className);
 						if ($ref->isSubClassOf('TestCase')) {
 							$tests[] = $ref->newInstance($className);
+							//add to filter
+							CoverageFilter::addFile($file);
 						}
 						unset($ref);
 						

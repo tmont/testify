@@ -190,33 +190,54 @@
 		}
 		
 		/**
+		 * Adds tests in bulk
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    addTest()
+		 * 
+		 * @param  array $tests
+		 * @return TestRunner
+		 */
+		public final function addTests(array $tests) {
+			foreach ($tests as $test) {
+				$this->addTest($test);
+			}
+			
+			return $this;
+		}
+		
+		/**
+		 * Gets the value of an option
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $option
+		 * @throws InvalidArgumentException
+		 * @return mixed
+		 */
+		public final function getOption($option) {
+			if (!array_key_exists($option, $this->options)) {
+				throw new InvalidArgumentException('Option "' . $option . '" does not exist');
+			}
+			
+			return $this->options[$option];
+		}
+		
+		/**
 		 * Parses options
 		 *
 		 * @author  Tommy Montgomery
 		 * @version 1.0
 		 * @since   1.0
-		 * @uses    getAllowableOptions()
 		 * 
 		 * @param  array $unparsed The unparsed options
-		 * @throws {@link InvalidOptionException}
 		 * @return array The parsed options
 		 */
-		protected final function parseOptions(array $unparsed) {
-			$allowedOptions = $this->getAllowableOptions();
-			$options = array_fill_keys(array_keys($allowedOptions), null);
-			foreach ($unparsed as $option => $value) {
-				if (!isset($allowedOptions[$option])) {
-					throw new InvalidOptionException($option);
-				}
-				if (gettype($value) !== $allowedOptions[$option]) {
-					throw new InvalidOptionException($option, 'Expected a value of type ' . $allowedOptions[$option] . ', got ' . gettype($value));
-				}
-				
-				$options[$option] = $value;
-			}
-			
-			return $options;
-		}
+		protected abstract function parseOptions(array $unparsed);
 		
 		/**
 		 * Runs the tests and returns the results
@@ -264,6 +285,17 @@
 		}
 		
 		/**
+		 * Called before runTests()
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 */
+		protected function preRun() {
+			
+		}
+		
+		/**
 		 * Runs all tests and publishes the results
 		 *
 		 * @author  Tommy Montgomery
@@ -274,17 +306,34 @@
 		 * @uses    TestListener::afterTestRunner()
 		 */
 		public final function run() {
+			$this->preRun();
+			
 			foreach ($this->listeners as $listener) {
 				$listener->beforeTestRunner($this);
 			}
 			
 			$this->startTime = microtime(true);
-			$this->publishResults($this->runTests());
-			$this->endTime = microtime(true);
+			$results         = $this->runTests();
+			$this->endTime   = microtime(true);
+			
+			$this->publishResults($results);
 			
 			foreach ($this->listeners as $listener) {
 				$listener->afterTestRunner($this);
 			}
+			
+			$this->postRun();
+		}
+		
+		/**
+		 * Called after runTests()
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 */
+		protected function postRun() {
+		
 		}
 		
 		/**
@@ -314,17 +363,6 @@
 		public function getTestCount() {
 			return Util::countTests($this->tests);
 		}
-		
-		/**
-		 * Gets all allowable options for this test runner
-		 *
-		 * @author  Tommy Montgomery
-		 * @version 1.0
-		 * @since   1.0
-		 *
-		 * @return array
-		 */
-		protected abstract function getAllowableOptions();
 		
 	}
 
