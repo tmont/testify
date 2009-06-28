@@ -1,15 +1,54 @@
 <?php
 
+	/**
+	 * TestFailure, FailedTest, ErredTest, IgnoredTest
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+
+	/**
+	 * Represents a test failure
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class TestFailure extends Exception {
 		
+		/**
+		 * @var Exception|null
+		 */
 		protected $innerException;
 		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string    $message
+		 * @param  Exception $innerException
+		 */
 		public function __construct($message = '', Exception $innerException = null) {
 			parent::__construct($message);
 			
 			$this->innerException = $innerException;
 		}
 		
+		/**
+		 * Gets the stack trace for the test failure
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return string
+		 */
 		public function getStackTrace() {
 			$trace = ($this->innerException !== null) ? $this->innerException->getTrace() : $this->getTrace();
 			$count = 1;
@@ -48,8 +87,34 @@
 		
 	}
 	
+	/**
+	 * A failed test
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class FailedTest extends TestFailure {}
+	
+	/**
+	 * An erred test
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class ErredTest extends FailedTest {}
+	
+	/**
+	 * An ignored test
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class IgnoredTest extends TestFailure {}
 
 ?>
