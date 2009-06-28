@@ -60,7 +60,7 @@
 		 * @return array
 		 */
 		public static function getTestsFromDir($dir, $recursive = true) {
-			$iterator = ($recursive) ? new RecursivePhpFileIterator($dir) : new PhpFileIterator($dir);
+			$iterator = ($recursive) ? new RecursiveIteratorIterator(new RecursivePhpFileIterator($dir)) : new PhpFileIterator($dir);
 			
 			$tests = array();
 			foreach ($iterator as $file) {

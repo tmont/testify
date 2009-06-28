@@ -33,6 +33,19 @@
 		}
 		
 		/**
+		 * Gets the children for the inner iterator
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return RecursivePhpFileIterator
+		 */
+		public function getChildren() {
+			return new self($this->current()->getPathName());
+		}
+		
+		/**
 		 * Defines acceptance criteria for iteration
 		 *
 		 * @author  Tommy Montgomery
@@ -43,9 +56,12 @@
 		 */
 		public function accept() {
 			return
-				!$this->getInnerIterator()->isDot() && 
-				strpos($this->current()->getPathName(), DIRECTORY_SEPARATOR . '.') === false && 
-				substr($this->current()->getFileName(), -4) === '.php';
+				strpos($this->current()->getPathName(), DIRECTORY_SEPARATOR . '.') === false && (
+					$this->current()->isDir() || (
+						!$this->getInnerIterator()->isDot() &&
+						substr($this->current()->getFileName(), -4) === '.php'
+					)
+				);
 		}
 		
 	}
