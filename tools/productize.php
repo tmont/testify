@@ -68,7 +68,6 @@
 	 * @since   1.0
 	 * @version $args[version]
 	 */
-	 */
 	final class Product {
 		
 		/**#@+
