@@ -1,15 +1,60 @@
 <?php
 
+	/**
+	 * File containing MockObject, MockObjectCreator
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+
+	/**
+	 * MockObject dummy interface
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	interface MockObject {}
 
+	/**
+	 * Class MockObjectCreator
+	 *
+	 * @package TUnit
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
 	class MockObjectCreator {
 		
+		/**
+		 * The object to mock
+		 *
+		 * @var ReflectionClass
+		 */
 		protected $referenceObject;
+		
+		/**
+		 * The methods to mock
+		 *
+		 * @var mixed
+		 */
 		protected $methods;
 		
-		protected static $registry = array();
-		protected static $expectations = array();
-		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $class      The name of the class or interface to mock
+		 * @param  bool   $callParent Whether to call the parent constructor
+		 * @throws InvalidArgumentException
+		 * @throws LogicException
+		 */
 		public function __construct($class, $callParent = true) {
 			if (!class_exists($class) && !interface_exists($class)) {
 				throw new InvalidArgumentException('The class "' . $class . '" does not exist');
@@ -33,6 +78,20 @@
 			);
 		}
 		
+		/**
+		 * Adds a method to mock
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    methodIsMockable()
+		 * 
+		 * @param  string $methodName Name of the method to mock
+		 * @param  bool   $callParent Whether to call the parent
+		 * @param  string $body       Custom PHP code to execute in the method body
+		 * @throws LogicException if the method is not mockable
+		 * @return MockObjectCreator
+		 */
 		public function addMethod($methodName, $callParent = false, $body = '') {
 			$methodType = 'generic';
 			if ($this->referenceObject->hasMethod($methodName)) {
@@ -58,10 +117,35 @@
 			return $this;
 		}
 		
-		protected function methodIsMockable(ReflectionMethod $method) {
+		/**
+		 * Determines if a method is mockable
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  ReflectionMethod $method
+		 * @return bool
+		 */
+		protected final function methodIsMockable(ReflectionMethod $method) {
 			return !$method->isFinal() && !$method->isPrivate() && !$method->isStatic();
 		}
 		
+		/**
+		 * Generates the mock object
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    generateClassDefinition()
+		 * @uses    MockRegistry::addClass()
+		 * 
+		 * @param  array  $constructorArgs Arguments to pass to the constructor
+		 * @param  string $name            Custom name to give the newly created mock object, by default
+		 *                                 a random, unused name is chosen
+		 * @throws LogicException if a name is given that is already in use
+		 * @return object
+		 */
 		public function generate(array $constructorArgs = array(), $name = '') {
 			if (empty($name)) {
 				$className = $this->referenceObject->getName();
@@ -71,7 +155,7 @@
 			}
 			
 			if (class_exists($name) || interface_exists($name)) {
-				throw new RuntimeException('Cannot use the name "' . $name . '" for mock object because the class or interface already exists');
+				throw new LogicException('Cannot use the name "' . $name . '" for mock object because the class or interface already exists');
 			}
 			
 			$code = $this->generateClassDefinition($name);
@@ -84,6 +168,17 @@
 			return $obj;
 		}
 		
+		/**
+		 * Generates the class definition of the mock object
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    generateMethodDefinition()
+		 * 
+		 * @param  string $name The name of the class
+		 * @return string Executable PHP code that will generate a class when eval()'d
+		 */
 		protected function generateClassDefinition($name) {
 			$code = 'class ' . $name . ' ';
 			if ($this->referenceObject->isInterface()) {
@@ -104,6 +199,18 @@
 			return $code;
 		}
 		
+		/**
+		 * Generates a method definition
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $type       "default" or "generic"
+		 * @param  string $name       Name of the method
+		 * @param  array  $methodData Should have keys "call_parent" and "body"
+		 * @return string
+		 */
 		protected function generateMethodDefinition($type, $name, array $methodData) {
 			$modifier  = 'public';
 			$params    = '';
