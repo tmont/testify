@@ -28,9 +28,7 @@
 		 * @uses    getOption()
 		 */
 		protected function preRun() {
-			parent::preRun();
-			
-			if ($this->getOption('coverage-html') !== null || $this->getOption('coverage-console') !== null/* || $this->getOption('coverage-xml')*/) {
+			if ($this->getOption('coverage-html') || $this->getOption('coverage-console')/* || $this->getOption('coverage-xml')*/) {
 				xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
 			}
 			
@@ -53,7 +51,7 @@
 		protected function postRun() {
 			$html    = $this->getOption('coverage-html');
 			$console = $this->getOption('coverage-console');
-			if ($html !== null || $console !== null) {
+			if ($html || $console) {
 				$coverage = xdebug_get_code_coverage();
 				xdebug_stop_code_coverage();
 				if ($console !== null) {
