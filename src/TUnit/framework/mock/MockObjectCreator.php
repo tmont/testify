@@ -66,10 +66,19 @@
 				throw new LogicException('The class "' . $class . '" is final and cannot be mocked');
 			}
 			
+			$constructor = $refClass->getConstructor();
+			if ($constructor === null) {
+				$constructor = '__construct';
+				$callParent = false;
+			} else {
+				$constructor = $constructor->getName();
+			}
+			
 			$this->referenceObject = $refClass;
+			
 			$this->methods         = array(
 				'default' => array(
-					$this->referenceObject->getConstructor()->getName() => array(
+					$constructor => array(
 						'body'        => '',
 						'call_parent' => (bool)$callParent
 					)

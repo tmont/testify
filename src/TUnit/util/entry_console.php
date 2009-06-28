@@ -48,7 +48,7 @@
 	         ->addSwitch(new CliSwitch('usage',            null, false, null,     'Display this help message'))
 	         ->addSwitch(new CliSwitch('recursive',        null, false, null,     'Recurse into subdirectories'))
 	         ->addSwitch(new CliSwitch('bootstrap',        'b',  false, 'file',   'File to include before tests are run'))
-	         ->addSwitch(new CliSwitch('coverage-xml',     null, false, 'file',   'Generate code coverage report in XML clover format (requires xdebug)'))
+	         //->addSwitch(new CliSwitch('coverage-xml',     null, false, 'file',   'Generate code coverage report in XML clover format (requires xdebug)'))
 	         ->addSwitch(new CliSwitch('coverage-html',    null, false, 'dir',    'Generate code coverage report in HTML (requires xdebug, optionally uses ezComponents)'))
 	         ->addSwitch(new CliSwitch('coverage-console', null, false, null,     'Generate code coverage report suitable for console viewing'));
 

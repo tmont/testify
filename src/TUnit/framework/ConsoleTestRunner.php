@@ -40,6 +40,16 @@
 			}
 		}
 		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @since   1.0
+		 * @version 1.0
+		 * @uses    getOption()
+		 * @uses    CoverageReporter::createConsoleReport()
+		 * @uses    CoverageReporter::createHtmlReport()
+		 */
 		protected function postRun() {
 			$html    = $this->getOption('coverage-html');
 			$console = $this->getOption('coverage-console');
