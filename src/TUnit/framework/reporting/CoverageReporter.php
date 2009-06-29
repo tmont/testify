@@ -108,13 +108,14 @@
 			fwrite(STDOUT, "Totals:\n");
 			fwrite(STDOUT, "  Covered:    $totcloc\n");
 			fwrite(STDOUT, "  Dead:       $totdloc\n");
-			fwrite(STDOUT, "  Executable: " . ($totloc - $totdloc) . "" . round($totcloc / ($totloc - $dloc) * 100, 2) . "%)\n");
+			fwrite(STDOUT, "  Executable: " . ($totloc - $totdloc) . " (" . round($totcloc / ($totloc - $dloc) * 100, 2) . "%)\n");
 		}
 		
 		public static function createHtmlReport($coverageDir, array $coverageData) {
 			$coverageData = CoverageFilter::filter($coverageData);
 			
 			$baseDir = array();
+			$dirData = array();
 			foreach ($coverageData as $file => $data) {
 				$dirs = explode(DIRECTORY_SEPARATOR, dirname($file));
 				if (empty($baseDir)) {
@@ -134,12 +135,11 @@
 			
 			$classData = self::parseCoverageData($coverageData);
 			
-			$dirData = array();
 			foreach ($coverageData as $file => $data) {
 				self::writeHtmlFile($file, $baseDir, $coverageDir, $classData[$file], $data);
 			}
 			
-			self::writeHtmlDirectories($coverageDir, $baseDir, $classData);
+			self::writeHtmlDirectories($coverageDir, $baseDir, $coverageData);
 			
 			//copy css over
 			$template = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR;
@@ -222,16 +222,10 @@
 			}
 			unset($lines);
 			
-			$fileName = str_replace(array($baseDir, DIRECTORY_SEPARATOR), array('', '_'), $sourceFile);
+			$fileName = '-' . str_replace(array($baseDir, DIRECTORY_SEPARATOR), array('', '-'), $sourceFile);
 			$newFile = $coverageDir . DIRECTORY_SEPARATOR . $fileName . '.html';
 			
-			$link = '<a href="./index.html">' . $baseDir . '</a>';
-			$dirs = preg_split('@\\' . DIRECTORY_SEPARATOR . '@', str_replace($baseDir, '', dirname($sourceFile) . DIRECTORY_SEPARATOR), -1, PREG_SPLIT_NO_EMPTY);
-			$path = '';
-			foreach ($dirs as $dir) {
-				$path = ltrim($path . '_' . $dir, '_');
-				$link .= '<a href="./' . $path . '.html">' . $dir . '</a>' . DIRECTORY_SEPARATOR;
-			}
+			$link = self::buildLink($baseDir, $sourceFile);
 			
 			$template = file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR . 'file.html');
 			$template = str_replace(
@@ -265,8 +259,134 @@
 			return file_put_contents($newFile, $template);
 		}
 		
-		private static function writeHtmlDirectories($coverageDir, $baseDir, array $classData) {
+		private static function writeHtmlDirectories($coverageDir, $baseDir, array $coverageData) {
+			$dirData = array();
+			foreach ($coverageData as $file => $data) {
+				$dirs = preg_split('@\\' . DIRECTORY_SEPARATOR . '@', str_replace($baseDir, '', dirname($file) . DIRECTORY_SEPARATOR), -1, PREG_SPLIT_NO_EMPTY);
+				if (empty($dirs)) {
+					continue;
+				}
+				
+				$loc  = count($data);
+				$dloc = array_reduce($data, 'CoverageReporter::getDeadLoc',    0);
+				$cloc = array_reduce($data, 'CoverageReporter::getCoveredLoc', 0);
+				
+				$index = '';
+				foreach ($dirs as $dir) {
+					$index .= DIRECTORY_SEPARATOR . $dir;
+					if (!isset($dirData[$index])) {
+						$dirData[$index] = array(
+							'loc'  => $loc,
+							'dloc' => $dloc,
+							'cloc' => $cloc,
+							'files' => array()
+						);
+					} else {
+						$dirData[$index]['loc']  += $loc;
+						$dirData[$index]['dloc'] += $dloc;
+						$dirData[$index]['cloc'] += $cloc;
+					}
+				}
+				
+				$dirData[DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $dirs)]['files'][$file] = array(
+					'loc'  => $loc,
+					'dloc' => $dloc,
+					'cloc' => $cloc
+				);
+			}
 			
+			$template = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR . 'directory.html';
+			$template = file_get_contents($template);
+			
+			foreach ($dirData as $dir => $data) {
+				$info = '';
+				$link = '';
+				$subdirs = array();
+				foreach ($dirData as $dir2 => $data2) {
+					if (substr($dir2, 0, strrpos($dir2, DIRECTORY_SEPARATOR)) === $dir) {
+						//this is a direct subdirectory
+						$subdirs[] = $dir2;
+					}
+				}
+				
+				sort($subdirs);
+				
+				//create directory info
+				foreach ($subdirs as $subdir) {
+					$subdata = $dirData[$subdir];
+					
+					$info .= '<tr><th><a href="' . self::buildLink($baseDir, $subdir . DIRECTORY_SEPARATOR . 'foo', true) . '.html">' . basename($subdir) . '</a></th>';
+					$info .= '<td>' . $subdata['cloc'] . ' / ' . ($subdata['loc'] - $subdata['dloc']) . '</td>';
+					$info .= '<td>' . round($subdata['cloc'] / ($subdata['loc'] - $subdata['dloc']) * 100, 2) . '%</td>';
+					$info .= "</tr>\n";
+				}
+				
+				//regular files in current directory
+				foreach ($data['files'] as $file => $fileData) {
+					$info .= '<tr><th><a href="' . self::buildLink($baseDir, $file, true) . '-' . basename($file) . '.html">' . basename($file) . '</a></th>';
+					$info .= '<td>' . $fileData['cloc'] . ' / ' . ($fileData['loc'] - $fileData['dloc']) . '</td>';
+					$info .= '<td>' . round($fileData['cloc'] / ($fileData['loc'] - $fileData['dloc']) * 100, 2) . '%</td>';
+					$info .= "</tr>\n";
+				}
+				
+				$temp = str_replace(
+					array(
+						'${title}',
+						'${file.link}',
+						'${directory.coverage}',
+						'${timestamp}',
+						'${product.name}',	
+						'${product.version}',
+						'${product.website}',
+						'${product.author}'
+					),
+					array(
+						Product::NAME . ' - Coverage Report',
+						self::buildLink($baseDir, $dir . DIRECTORY_SEPARATOR . 'foo'),
+						$info,
+						date('Y-m-d H:i:s'),
+						Product::NAME,
+						Product::VERSION,
+						Product::WEBSITE,
+						Product::AUTHOR
+					),
+					$template
+				);
+				
+				$fileName = str_replace(DIRECTORY_SEPARATOR, '-', $dir) . '.html';
+				file_put_contents($coverageDir . DIRECTORY_SEPARATOR . $fileName, $temp);
+			}
+		}
+		
+		private static function buildLink($baseDir, $path, $oneLink = false) {
+			if ($oneLink) {
+				$link = './';
+			} else {
+				$link = '<a href="./index.html">' . $baseDir . '</a>';
+			}
+			$dirs = preg_split('@\\' . DIRECTORY_SEPARATOR . '@', str_replace($baseDir, '', dirname($path) . DIRECTORY_SEPARATOR), -1, PREG_SPLIT_NO_EMPTY);
+			$path = '';
+			foreach ($dirs as $dir) {
+				$path = $path . '-' . $dir;
+				if ($oneLink) {
+					$link = $path;
+				} else {
+					$link .= '<a href="./' . $path . '.html">' . $dir . DIRECTORY_SEPARATOR . '</a>';
+				}
+			}
+			
+			// print_r($dirs);
+			// echo 'asdf: ' . $link . "\n\n";
+			
+			return $link;
+		}
+		
+		private static function getDeadLoc($old, $new) {
+			return $old + (($new === self::DEAD) ? 1 : 0);
+		}
+		
+		private static function getCoveredLoc($old, $new) {
+			return $old + (($new > 0) ? 1 : 0);
 		}
 		
 	}
