@@ -264,7 +264,7 @@
 			foreach ($coverageData as $file => $data) {
 				$dirs = preg_split('@\\' . DIRECTORY_SEPARATOR . '@', str_replace($baseDir, '', dirname($file) . DIRECTORY_SEPARATOR), -1, PREG_SPLIT_NO_EMPTY);
 				if (empty($dirs)) {
-					continue;
+					$dirs[] = '';
 				}
 				
 				$loc  = count($data);
@@ -303,7 +303,7 @@
 				$link = '';
 				$subdirs = array();
 				foreach ($dirData as $dir2 => $data2) {
-					if (substr($dir2, 0, strrpos($dir2, DIRECTORY_SEPARATOR)) === $dir) {
+					if ($dir === DIRECTORY_SEPARATOR || substr($dir2, 0, strrpos($dir2, DIRECTORY_SEPARATOR)) === $dir) {
 						//this is a direct subdirectory
 						$subdirs[] = $dir2;
 					}
@@ -313,6 +313,9 @@
 				
 				//create directory info
 				foreach ($subdirs as $subdir) {
+					if ($subdir === DIRECTORY_SEPARATOR) {
+						continue;
+					}
 					$subdata = $dirData[$subdir];
 					
 					$info .= '<tr><th><a href="' . self::buildLink($baseDir, $subdir . DIRECTORY_SEPARATOR . 'foo', true) . '.html">' . basename($subdir) . '</a></th>';
@@ -353,7 +356,7 @@
 					$template
 				);
 				
-				$fileName = str_replace(DIRECTORY_SEPARATOR, '-', $dir) . '.html';
+				$fileName = ($dir === DIRECTORY_SEPARATOR) ? 'index.html' : str_replace(DIRECTORY_SEPARATOR, '-', $dir) . '.html';
 				file_put_contents($coverageDir . DIRECTORY_SEPARATOR . $fileName, $temp);
 			}
 		}
@@ -367,16 +370,17 @@
 			$dirs = preg_split('@\\' . DIRECTORY_SEPARATOR . '@', str_replace($baseDir, '', dirname($path) . DIRECTORY_SEPARATOR), -1, PREG_SPLIT_NO_EMPTY);
 			$path = '';
 			foreach ($dirs as $dir) {
-				$path = $path . '-' . $dir;
+				if (empty($dir)) {
+					$path = 'index.html';
+				} else {
+					$path = $path . '-' . $dir;
+				}
 				if ($oneLink) {
 					$link = $path;
 				} else {
 					$link .= '<a href="./' . $path . '.html">' . $dir . DIRECTORY_SEPARATOR . '</a>';
 				}
 			}
-			
-			// print_r($dirs);
-			// echo 'asdf: ' . $link . "\n\n";
 			
 			return $link;
 		}
