@@ -9,6 +9,70 @@
 		
 		private function __construct() {}
 		
+		private static function parseCoverageData(array $coverageData) {
+			$newData = array();
+			foreach ($coverageData as $file => $data) {
+				$classes = Util::getClassNamesFromFile($file);
+				//print_r($classes);
+				$refClasses = array();
+				
+				foreach ($classes as $class) {
+					$refClasses[] = new ReflectionClass($class);
+				}
+				
+				$newData[$file] = array();
+				foreach ($data as $line => $unitsCovered) {
+					$loc  = 1;
+					$dloc = ($unitsCovered === self::DEAD) ? 1 : 0;
+					$cloc = ($unitsCovered > 0)            ? 1 : 0;
+					
+					//find the class this line resides in, if any
+					$class = null;
+					foreach ($refClasses as $refClass) {
+						if ($line >= $refClass->getStartLine() && $line <= $refClass->getEndLine()) {
+							$class = $refClass;
+							//find the method this line resides in
+							foreach ($class->getMethods() as $refMethod) {
+								if ($line >= $refMethod->getStartLine() && $line <= $refMethod->getEndLine()) {
+									
+									if (isset($newData[$file]['classes'][$class->getName()][$refMethod->getName()])) {
+										$newData[$file]['classes'][$class->getName()][$refMethod->getName()]['loc']  += $loc;
+										$newData[$file]['classes'][$class->getName()][$refMethod->getName()]['dloc'] += $dloc;
+										$newData[$file]['classes'][$class->getName()][$refMethod->getName()]['cloc'] += $cloc;
+									} else {
+										$newData[$file]['classes'][$class->getName()][$refMethod->getName()] = array(
+											'loc'  => $loc,
+											'dloc' => $dloc,
+											'cloc' => $cloc
+										);
+									}
+									break;
+								}
+							}
+							break;
+						}
+					}
+					
+					//procedural code
+					if ($class === null) {
+						if (isset($newData[$file]['procedural'])) {
+							$newData[$file]['procedural']['loc']  += $loc;
+							$newData[$file]['procedural']['dloc'] += $dloc;
+							$newData[$file]['procedural']['cloc'] += $cloc;
+						} else {
+							$newData[$file]['procedural'] = array(
+								'loc'  => $loc,
+								'dloc' => $dloc,
+								'cloc' => $cloc
+							);
+						}
+					}
+				}
+			}
+			
+			return $newData;
+		}
+		
 		public static function createConsoleReport(array $coverageData) {
 			$coverageData = CoverageFilter::filter($coverageData);
 			fwrite(STDOUT, "\nCode coverage information:\n\n");
@@ -47,11 +111,7 @@
 			fwrite(STDOUT, "  Executable: $totloc (" . round($totcloc / $totloc * 100, 2) . "%)\n");
 		}
 		
-		public static function createHtmlReport($dir, array $coverageData) {
-			if (!is_dir($dir)) {
-				throw new TUnitException($dir . ' is not a directory');
-			}
-			
+		public static function createHtmlReport($coverageDir, array $coverageData) {
 			$coverageData = CoverageFilter::filter($coverageData);
 			
 			$baseDir = array();
@@ -72,45 +132,72 @@
 			
 			$baseDir = implode(DIRECTORY_SEPARATOR, $baseDir) . DIRECTORY_SEPARATOR;
 			
-			$totalData = array();
+			$dirData = array();
 			foreach ($coverageData as $file => $data) {
-				$totalData[$file] = array(
-					'loc'  => 0,
-					'dloc' => 0,
-					'cloc' => 0
-				);
-				
-				foreach ($data as $line => $unitsCovered) {
-					$totalData[$file]['loc']++;
-					if ($unitsCovered > 0) {
-						$totalData[$file]['cloc']++;
-					} else if ($unitsCovered === self::DEAD) {
-						$totalData[$file]['dloc']++;
-					}
-				}
-				
-				self::writeHtmlFile($file, $baseDir, $dir, $data);
+				self::writeHtmlFile($file, $baseDir, $coverageDir, self::parseCoverageData(array($file => $data)), $data);
 			}
 			
 			//copy css over
 			$template = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR;
-			copy($template . 'style.css', $dir . DIRECTORY_SEPARATOR . 'style.css');
+			copy($template . 'style.css', $coverageDir . DIRECTORY_SEPARATOR . 'style.css');
 		}
 		
-		private static function writeHtmlFile($sourceFile, $baseDir, $coverageDir, array $data) {
-			$lines = file($sourceFile, FILE_IGNORE_NEW_LINES);
-			$code = '';
+		private static function writeHtmlFile($sourceFile, $baseDir, $coverageDir, array $classData, array $coverageData) {
+			//summary view
+			$fileCoverage = '';
+			$classCoverage = '';
+			
+			$tloc  = 0;
+			$tdloc = 0;
+			$tcloc = 0;
+			foreach ($classData[$sourceFile]['classes'] as $class => $methods) {
+				$classCoverage = '';
+				$classLoc  = 0;
+				$classDloc = 0;
+				$classCloc = 0;
+				$methodCoverage = '';
+				$refClass = new ReflectionClass($class);
+				foreach ($methods as $method => $methodData) {
+					$tloc  += $methodData['loc'];
+					$tdloc += $methodData['dloc'];
+					$tcloc += $methodData['cloc'];
+					
+					$methodStartLine = $refClass->getMethod($method)->getStartLine();
+					$methodCoverage .= "<tr class=\"method-coverage\"><th>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#line-$methodStartLine\">$method</a></th>";
+					$methodCoverage .= "<td>$methodData[cloc] / " . ($methodData['loc'] - $methodData['dloc']) . "</td>";
+					$methodCoverage .= "<td>" . round($methodData['cloc'] / ($methodData['loc'] - $methodData['dloc']) * 100, 2) . "%</td></tr>\n";
+					
+					$classLoc  += $methodData['loc'];
+					$classDloc += $methodData['dloc'];
+					$classCloc += $methodData['cloc'];
+				}
+				
+				$classStartLine = $refClass->getStartLine();
+				$classCoverage .= "<tr class=\"class-coverage\"><th>&nbsp;&nbsp;<a href=\"#line-$classStartLine\">$class</a></th><td>$classCloc / " . ($classLoc - $classDloc) . "</td>";
+				$classCoverage .= "<td>" . round($classCloc / ($classLoc - $classDloc) * 100, 2) . "%</td></tr>\n";
+				$classCoverage .= $methodCoverage;
+			}
+			
+			$fileCoveragePercent = round($tcloc / max($tloc - $tdloc, 1) * 100, 2);
+			$fileCoverage = "<tr class=\"file-coverage\"><th>$sourceFile</th><td>$tcloc / " . ($tloc - $tdloc) . "</td><td>$fileCoveragePercent%</td></tr>\n";
+			$fileCoverage .= $classCoverage;
+			unset($classCoverage, $methodCoverage, $classData, $refClass);
+			
+			//code view
+			$lines       = file($sourceFile, FILE_IGNORE_NEW_LINES);
+			$code        = '';
 			$lineNumbers = '';
+			
 			for ($i = 1, $len = count($lines); $i <= $len; $i++) {
-				$lineNumbers .= '<div><a href="#line-' . $i . '">' . $i . '</a></div>';
+				$lineNumbers .= '<div><a name="#line-' . $i . '" href="#line-' . $i . '">' . $i . '</a></div>';
 				$code .= '<div';
-				if (isset($data[$i])) {
+				if (isset($coverageData[$i])) {
 					$code .= ' class="';
-					if ($data[$i] > 0) {
+					if ($coverageData[$i] > 0) {
 						$code .= 'covered';
-					} else if ($data[$i] === self::DEAD) {
+					} else if ($coverageData[$i] === self::DEAD) {
 						$code .= 'dead';
-					} else if ($data[$i] === self::UNUSED) {
+					} else if ($coverageData[$i] === self::UNUSED) {
 						$code .= 'uncovered';
 					}
 					
@@ -125,7 +212,6 @@
 				
 				$code .= htmlentities(str_replace("\t", '    ', $lines[$i - 1]), ENT_QUOTES) ."</div>\n";
 			}
-			
 			unset($lines);
 			
 			$fileName = str_replace(array($baseDir, DIRECTORY_SEPARATOR), array('', '_'), $sourceFile);
@@ -140,21 +226,23 @@
 			}
 			
 			$template = file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR . 'file.html');
-			$template = preg_replace(
+			$template = str_replace(
 				array(
-					'/\$\{title\}/',
-					'/\$\{file\.name\}/',
-					'/\$\{line.numbers\}/',
-					'/\$\{code\}/',
-					'/\$\{timestamp\}/',
-					'/\$\{product\.name\}/',	
-					'/\$\{product\.version\}/',
-					'/\$\{product\.website\}/',
-					'/\$\{product\.author\}/'
+					'${title}',
+					'${file.link}',
+					'${file.coverage}',
+					'${line.numbers}',
+					'${code}',
+					'${timestamp}',
+					'${product.name}',	
+					'${product.version}',
+					'${product.website}',
+					'${product.author}'
 				),
 				array(
 					Product::NAME . ' - Coverage Report',
 					$link . basename($sourceFile),
+					$fileCoverage,
 					$lineNumbers,
 					$code,
 					date('Y-m-d H:i:s'),
@@ -169,8 +257,14 @@
 			return file_put_contents($newFile, $template);
 		}
 		
-		private static function writeHtmlDir(array $data) {
+		private static function writeHtmlDirectories($coverageDir, $baseDir, array $dirData) {
+			ksort($dirData);
 			
+			$newDirData = array();
+			foreach ($dirData as $dir => $data) {
+				$dir = str_replace($baseDir, '', $dir);
+				
+			}
 		}
 		
 	}

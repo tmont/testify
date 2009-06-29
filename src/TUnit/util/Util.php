@@ -248,6 +248,23 @@
 			return $closure;
 		}
 		
+		public static function getClassNamesFromFile($file) {
+			$tokens  = token_get_all(file_get_contents($file));
+			$classes = array();
+			for ($i = 0, $len = count($tokens); $i < $len; $i++) {
+				if (
+					is_array($tokens[$i]) && $tokens[$i][0] === T_CLASS &&
+					isset($tokens[$i + 1]) && is_array($tokens[$i + 1]) && $tokens[$i + 1][0] === T_WHITESPACE &&
+					isset($tokens[$i + 2]) && is_array($tokens[$i + 2]) && $tokens[$i + 2][0] === T_STRING
+				) {
+					$classes[] = $tokens[$i + 2][1];
+					$i += 2;
+				}
+			}
+			
+			return $classes;
+		}
+		
 	}
 
 ?>

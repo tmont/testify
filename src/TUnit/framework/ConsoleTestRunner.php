@@ -20,6 +20,43 @@
 	class ConsoleTestRunner extends TestRunner {
 		
 		/**
+		 * @see setFiles()
+		 * @var array
+		 */
+		protected $files;
+		
+		/**
+		 * Constructor
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  array $tests
+		 * @param  array $listeners
+		 * @param  array $options
+		 */
+		public function __construct(array $tests = array(), array $listeners = array(), array $options = array()) {
+			parent::__construct($tests, $listeners, $options);
+			$this->files = array();
+		}
+		
+		/**
+		 * Sets the files to parse for tests
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  array $files Array of files and/or directories to parse for tests
+		 * @return ConsoleTestRunner
+		 */
+		public final function setFiles(array $files) {
+			$this->files = $files;
+			return $this;
+		}
+		
+		/**
 		 * {@inheritdoc}
 		 *
 		 * @author  Tommy Montgomery
@@ -35,6 +72,14 @@
 			$bootstrap = $this->getOption('bootstrap');
 			if ($bootstrap !== null) {
 				require_once $bootstrap;
+			}
+			
+			
+			//accumulate tests from files
+			if (!empty($this->files)) {
+				foreach (TestAccumulator::getTests($this->files, $this->getOption('recursive')) as $test) {
+					$this->addTest($test);
+				}
 			}
 		}
 		

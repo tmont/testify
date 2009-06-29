@@ -71,15 +71,7 @@
 	$runner = new ConsoleTestRunner();
 	$runner->setOptions($options);
 	
-	//accumulate tests
-	$tests = TestAccumulator::getTests($args, $runner->getOption('recursive'));
-	
-	if (empty($tests)) {
-		fwrite(STDERR, 'Found no TestCase subclasses in the given files');
-		exit(1);
-	}
-	
-	$runner->addTests($tests)
+	$runner->setFiles($args)
 	       ->addListener(new ConsoleListener())
 	       ->run();
 	
