@@ -29,7 +29,7 @@
 					//find the class this line resides in, if any
 					$class = null;
 					foreach ($refClasses as $refClass) {
-						if ($line >= $refClass->getStartLine() && $line <= $refClass->getEndLine()) {
+						if ($line > $refClass->getStartLine() && $line <= $refClass->getEndLine()) {
 							$class = $refClass;
 							//find the method this line resides in
 							foreach ($class->getMethods() as $refMethod) {
@@ -97,7 +97,7 @@
 				
 				fwrite(STDOUT, "  Covered:    $cloc\n");
 				fwrite(STDOUT, "  Dead:       $dloc\n");
-				fwrite(STDOUT, "  Executable: $loc (" . round($cloc / $loc * 100, 2) . "%)\n");
+				fwrite(STDOUT, "  Executable: " . ($loc - $dloc) . " (" . round($cloc / ($loc - $dloc) * 100, 2) . "%)\n");
 				
 				$totloc  += $loc;
 				$totdloc += $dloc;
@@ -108,7 +108,7 @@
 			fwrite(STDOUT, "Totals:\n");
 			fwrite(STDOUT, "  Covered:    $totcloc\n");
 			fwrite(STDOUT, "  Dead:       $totdloc\n");
-			fwrite(STDOUT, "  Executable: $totloc (" . round($totcloc / $totloc * 100, 2) . "%)\n");
+			fwrite(STDOUT, "  Executable: " . ($totloc - $totdloc) . "" . round($totcloc / ($totloc - $dloc) * 100, 2) . "%)\n");
 		}
 		
 		public static function createHtmlReport($coverageDir, array $coverageData) {
@@ -132,10 +132,14 @@
 			
 			$baseDir = implode(DIRECTORY_SEPARATOR, $baseDir) . DIRECTORY_SEPARATOR;
 			
+			$classData = self::parseCoverageData($coverageData);
+			
 			$dirData = array();
 			foreach ($coverageData as $file => $data) {
-				self::writeHtmlFile($file, $baseDir, $coverageDir, self::parseCoverageData(array($file => $data)), $data);
+				self::writeHtmlFile($file, $baseDir, $coverageDir, $classData[$file], $data);
 			}
+			
+			self::writeHtmlDirectories($coverageDir, $baseDir, $classData);
 			
 			//copy css over
 			$template = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR;
@@ -150,7 +154,7 @@
 			$tloc  = 0;
 			$tdloc = 0;
 			$tcloc = 0;
-			foreach ($classData[$sourceFile]['classes'] as $class => $methods) {
+			foreach ($classData['classes'] as $class => $methods) {
 				$classCoverage = '';
 				$classLoc  = 0;
 				$classDloc = 0;
@@ -177,6 +181,10 @@
 				$classCoverage .= "<td>" . round($classCloc / ($classLoc - $classDloc) * 100, 2) . "%</td></tr>\n";
 				$classCoverage .= $methodCoverage;
 			}
+			
+			$tloc += $classData['procedural']['loc'];
+			$tdloc += $classData['procedural']['dloc'];
+			$tcloc += $classData['procedural']['cloc'];
 			
 			$fileCoveragePercent = round($tcloc / max($tloc - $tdloc, 1) * 100, 2);
 			$fileCoverage = "<tr class=\"file-coverage\"><th>$sourceFile</th><td>$tcloc / " . ($tloc - $tdloc) . "</td><td>$fileCoveragePercent%</td></tr>\n";
@@ -257,14 +265,8 @@
 			return file_put_contents($newFile, $template);
 		}
 		
-		private static function writeHtmlDirectories($coverageDir, $baseDir, array $dirData) {
-			ksort($dirData);
+		private static function writeHtmlDirectories($coverageDir, $baseDir, array $classData) {
 			
-			$newDirData = array();
-			foreach ($dirData as $dir => $data) {
-				$dir = str_replace($baseDir, '', $dir);
-				
-			}
 		}
 		
 	}
