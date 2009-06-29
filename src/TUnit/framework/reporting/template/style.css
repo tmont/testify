@@ -4,8 +4,8 @@ html {
 body {
 	background-color: #FFFFCC;
 	color: #000000;
-	font-family: Verdana, sans-serif;
-	font-size: 8pt;
+	font-family: Consolas, "Courier New", monospace;
+	font-size: 16px;
 }
 
 #code-wrapper {
@@ -36,12 +36,20 @@ body {
 #code div {
 	white-space: pre;
 }
+
+#summary {
+	border: 2px solid #000000;
+	background-color: #FFFFFF;
+	margin-bottom: 20px;
+}
 #summary th {
 	text-align: left;
 }
 
 #footer {
 	text-align: center;
+	font-family: Verdana, sans-serif;
+	font-size: 8pt;
 }
 
 .covered {
