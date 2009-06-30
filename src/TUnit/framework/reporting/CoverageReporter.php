@@ -302,8 +302,9 @@
 				$info = '';
 				$link = '';
 				$subdirs = array();
+				$cleanDir = rtrim($dir, DIRECTORY_SEPARATOR);
 				foreach ($dirData as $dir2 => $data2) {
-					if ($dir === DIRECTORY_SEPARATOR || substr($dir2, 0, strrpos($dir2, DIRECTORY_SEPARATOR)) === $dir) {
+					if (substr($dir2, 0, strrpos($dir2, DIRECTORY_SEPARATOR)) === $cleanDir) {
 						//this is a direct subdirectory
 						$subdirs[] = $dir2;
 					}
