@@ -27,12 +27,19 @@
 	<target name="manifest" depends="init, product" description="Builds the manifest file for the autoload mechanism (to ./inc/manifest.php)">
 		<exec executable="php">
 			<arg line="${dir.tools}/manifester.php"/>
-			<arg line="-d ${dir.src}/${ant.project.name}"/>
-			<arg line="-v ${product.version}"/>
-			<arg line="-p ${ant.project.name}"/>
-			<arg line="-o ${dir.src}/${ant.project.name}/manifest.php"/>
+			<arg line="-d"/>
+			<arg line="${dir.src}/${ant.project.name}"/>
+			<arg line="-v"/>
+			<arg line="${product.version}"/>
+			<arg line="-p"/>
+			<arg line="${ant.project.name}"/>
+			<arg line="-o"/>
+			<arg line="${dir.src}/${ant.project.name}/manifest.php"/>
 			<arg line="-r"/>
-			<arg line="-b ${dir.src}"/>
+			<arg line="-b"/>
+			<arg line="${dir.src}"/>
+			<arg line="-i"/>
+			<arg line="${file.separator}external${file.separator}"/>
 		</exec>
 	</target>
 	

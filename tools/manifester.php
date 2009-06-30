@@ -37,13 +37,14 @@
 	
 	global $switches;
 	$switches = new CliSwitchCollection();
-	$switches->addSwitch(new CliSwitch('directory', 'd', true,  'dir1,dir2,...',  'Comma-delimited list of directories'))
-			 ->addSwitch(new CliSwitch('version',   'v', true,  'version_number', 'Version number for use in @version tag'))
-			 ->addSwitch(new CliSwitch('package',   'p', true,  'package_name ',  'Name of the package for use in @package tag'))
-			 ->addSwitch(new CliSwitch('output',    'o', false, 'file',           'Name of the output file, defaults to stdout if empty'))
-			 ->addSwitch(new CliSwitch('quiet',     'q', false, null,             'Do not print progress messages'))
-			 ->addSwitch(new CliSwitch('recursive', 'r', false, null,             'Recursively walk the directories'))
-			 ->addSwitch(new CliSwitch('base-dir',  'b', true,  'dir',            'Base directory'));
+	$switches->addSwitch(new CliSwitch('directory', 'd', true,  'dir1,dir2,...',        'Comma-delimited list of directories'))
+			 ->addSwitch(new CliSwitch('version',   'v', true,  'version_number',       'Version number for use in @version tag'))
+			 ->addSwitch(new CliSwitch('package',   'p', true,  'package_name ',        'Name of the package for use in @package tag'))
+			 ->addSwitch(new CliSwitch('output',    'o', false, 'file',                 'Name of the output file, defaults to stdout if empty'))
+			 ->addSwitch(new CliSwitch('quiet',     'q', false, null,                   'Do not print progress messages'))
+			 ->addSwitch(new CliSwitch('recursive', 'r', false, null,                   'Recursively walk the directories'))
+			 ->addSwitch(new CliSwitch('ignore',    'i', false, 'pattern1,pattern2...', 'File patterns to ignore'))
+			 ->addSwitch(new CliSwitch('base-dir',  'b', true,  'dir',                  'Base directory'));
 	
 	array_shift($argv);
 	$args = Cli::parseArgs($argv, $switches);
@@ -77,7 +78,7 @@
 	 *
 	 * @package $args[package]
 	 * @version $args[version]
-	 * @since   $args[version]
+	 * @since   1.0
 	 */
 	
 	return array(
@@ -86,6 +87,11 @@ ENDDATA;
 	
 	$classes = array();
 	$maxClassNameLength = 0;
+	
+	$ignore = array(DIRECTORY_SEPARATOR . '.');
+	if (isset($args['ignore']) && !empty($args['ignore'])) {
+		$ignore = array_merge($ignore, explode(',', $args['ignore']));
+	}
 	
 	foreach ($dirs as $dir) {
 		if (!is_dir($dir)) {
@@ -96,7 +102,12 @@ ENDDATA;
 		$iterator = $args['recursive'] ? new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) : new DirectoryIterator($dir);
 		
 		foreach ($iterator as $file) {
-			if ($file->isFile() && strpos($file->getPathName(), DIRECTORY_SEPARATOR . '.') === false && substr($file->getFileName(), -4) === '.php') {
+			if (
+				$file->isFile() && 
+				strpos($file->getPathName(), DIRECTORY_SEPARATOR . '.') === false &&
+				substr($file->getFileName(), -4) === '.php' &&
+				array_reduce($ignore, create_function('$old, $new', 'return $old && strpos(\'' . addslashes($file->getPathName()) . '\', $new) === false;'), true)
+			) {
 				if (!$args['quiet']) {
 					echo 'Processing ' . $file->getPathName() . "\n";
 				}
