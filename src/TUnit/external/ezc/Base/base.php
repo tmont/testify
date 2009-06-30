@@ -41,7 +41,7 @@ class ezcBase
      *
      * @var string
      */
-    private static $libraryMode = "tarball";
+    private static $libraryMode = "pear";
 
     /**
      * Contains the current working directory, which is used when the
