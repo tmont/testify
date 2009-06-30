@@ -9,7 +9,8 @@
 	 */
 	
 	/**
-	 * Bootstraps each NowhereConcave package via autoload
+	 * Autoload mechanism used for automatically loading classes used by
+	 * the TUnit framework
 	 *
 	 * @package TUnit
 	 * @version 1.0
@@ -27,9 +28,7 @@
 		 * Not instantiable
 		 * @ignore
 		 */
-		private function __construct() {
-		
-		}
+		private function __construct() {}
 		//@codeCoverageIgnoreEnd
 		
 		/**
