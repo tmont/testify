@@ -75,7 +75,7 @@
 			$paramList = '';
 			foreach ($method->getParameters() as $i => $param) {
 				if ($param->getClass()) {
-					$paramList .= $param->getClass() . ' ';
+					$paramList .= $param->getClass()->getName() . ' ';
 				} else if ($param->isArray()) {
 					$paramList .= 'array ';
 				}
@@ -89,13 +89,18 @@
 				if ($param->isOptional()) {
 					$paramList .= ' = ';
 					if ($param->isDefaultValueAvailable()) {
-						$paramList .= var_export($param->getDefaultValue(), true);
+						if (is_array($param->getDefaultValue())) {
+							//removes annoying spaces in parens
+							$paramList .= 'array()';
+						} else {
+							$paramList .= var_export($param->getDefaultValue(), true);
+						}
 					} else {
 						$paramList .= 'null';
 					}
 				}
 				
-				$paramList .= ',';
+				$paramList .= ', ';
 			}
 			
 			return rtrim($paramList, ', ');

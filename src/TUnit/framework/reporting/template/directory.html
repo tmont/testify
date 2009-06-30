@@ -13,18 +13,32 @@
 		<div id="wrapper">
 			
 			<div id="header">
-				<h1>${file.link}</h1>
+				<h1>${product.name} Code Coverage Report</h1>
+			</div>
+			
+			<div id="file-link">
+				<p>${file.link}</p>
 			</div>
 			
 			<div id="directory-coverage">
 				<table>
+					<colgroup>
+						<col style="width:50%"/>
+						<col style="width:25%"/>
+						<col style="width:25%"/>
+					</colgroup>
+					
 					${directory.coverage}
 				</table>
 			</div>
 			
 			<div id="footer">
 				<p>
-					Generated on ${timestamp} by <a href="${product.website}">${product.name} ${product.version}</a>
+					Generated on ${timestamp} by <a href="${product.website}" title="${product.name}">${product.name} ${product.version}</a>
+					<br />
+					<a href="http://php.net/" title="PHP">PHP ${php.version}</a> |
+					<a href="http://xdebug.org/" title="Xdebug">Xdebug ${xdebug.version}</a> |
+					<a href="http://ezcomponents.org/" title="ezComponents">ezComponents ${ezc.version}</a>
 					<br />
 					&copy; 2009 ${product.author}
 				</p>

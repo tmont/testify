@@ -26,6 +26,7 @@
 			 ->addSwitch(new CliSwitch('version',     'v', true,  'version_number', 'Product version'))
 			 ->addSwitch(new CliSwitch('author',      'a', true,  'author_name',    'Product author'))
 			 ->addSwitch(new CliSwitch('website',     'w', true,  'url',            'Product website'))
+			 ->addSwitch(new CliSwitch('ezc',         'e', true,  'version',        'ezComponents version number'))
 			 ->addSwitch(new CliSwitch('package',     'p', true,  'package_name ',  'Name of the package for use in @package tag'))
 			 ->addSwitch(new CliSwitch('doc-version', 'd', false, 'version_number', 'Version number for use in @version tag'))
 			 ->addSwitch(new CliSwitch('output',      'o', false, 'file|dir',       'The file/directory to write the generated class to; default is stdout'));
@@ -76,27 +77,32 @@
 		/**
 		 * Product name
 		 */
-		const NAME    = '$args[name]';
+		const NAME        = '$args[name]';
 		
 		/**
 		 * Product version
 		 */
-		const VERSION = '$args[version]';
+		const VERSION     = '$args[version]';
 		
 		/**
 		 * Product author
 		 */
-		const AUTHOR  = '$args[author]';
+		const AUTHOR      = '$args[author]';
 		
 		/**
 		 * Product website
 		 */
-		const WEBSITE = '$args[website]';
+		const WEBSITE     = '$args[website]';
 		
 		/**
 		 * Product build date
 		 */
-		const DATE    = '$datetime';
+		const DATE        = '$datetime';
+		
+		/**
+		 * ezComponents version
+		 */
+		const EZC_VERSION = '$args[ezc]';
 		/**#@-*/
 		
 		/**

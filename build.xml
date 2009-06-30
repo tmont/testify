@@ -39,13 +39,20 @@
 	<target name="product" depends="init, set-revision-number" description="Generates Product.php (product meta information)">
 		<exec executable="php">
 			<arg line="${dir.tools}/productize.php"/>
-			<arg line="-n ${product.name}"/>
-			<arg line="-v ${product.version}.${product.revision}"/>
+			<arg line="-n"/>
+			<arg line="${product.name}"/>
+			<arg line="-v"/>
+			<arg line="${product.version}.${product.revision}"/>
 			<arg line="-a"/>
 			<arg line="${product.author}"/>
-			<arg line="-w ${product.website}"/>
-			<arg line="-p ${ant.project.name}"/>
-			<arg line="-o ${dir.src}/${ant.project.name}/util/Product.php"/>
+			<arg line="-e"/>
+			<arg line="${product.ezc}"/>
+			<arg line="-w"/>
+			<arg line="${product.website}"/>
+			<arg line="-p"/>
+			<arg line="${ant.project.name}"/>
+			<arg line="-o"/>
+			<arg line="${dir.src}/${ant.project.name}/util/Product.php"/>
 		</exec>
 	</target>
 	

@@ -2,10 +2,47 @@ html {
 	overflow: auto;
 }
 body {
-	background-color: #FFFFCC;
+	background-color: #CCFFCC;
 	color: #000000;
 	font-family: Consolas, "Courier New", monospace;
 	font-size: 16px;
+}
+h1 {
+	text-align: center;
+}
+a {
+	text-decoration: none;
+	color: #990099;
+}
+a:hover {
+	text-decoration: underline;
+}
+table {
+	background-color: #FFFFFF;
+	border-collapse: collapse;
+	border: 2px solid #000000;
+	width: 100%;
+}
+th, td {
+	border: 1px solid #000000;
+	padding: .3em;
+}
+th {
+	text-align: left;
+	font-weight: bold;
+}
+thead th {
+	text-align: center;
+}
+
+#file-link {
+	text-align: center;
+}
+#file-link a {
+	color: #990000;
+	display: inline-block;
+	margin-right: 5px;
+	font-weight: bold;
 }
 
 #code-wrapper {
@@ -42,16 +79,21 @@ body {
 	background-color: #FFFFFF;
 	margin-bottom: 20px;
 }
-#summary th {
-	text-align: left;
-}
 
 #footer {
 	text-align: center;
-	font-family: Verdana, sans-serif;
-	font-size: 8pt;
+	font-size: 12px;
+}
+#footer a {
+	color: #000000;
 }
 
+.coverage-percentage {
+	text-align: center;
+}
+.coverage-ratio {
+	text-align: center;
+}
 .covered {
 	background-color: #66FF66;
 }

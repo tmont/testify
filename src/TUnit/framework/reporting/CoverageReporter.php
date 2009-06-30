@@ -13,7 +13,6 @@
 			$newData = array();
 			foreach ($coverageData as $file => $data) {
 				$classes = Util::getClassNamesFromFile($file);
-				//print_r($classes);
 				$refClasses = array();
 				
 				foreach ($classes as $class) {
@@ -167,9 +166,17 @@
 					$tcloc += $methodData['cloc'];
 					
 					$methodStartLine = $refClass->getMethod($method)->getStartLine();
-					$methodCoverage .= "<tr class=\"method-coverage\"><th>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#line-$methodStartLine\">$method</a></th>";
-					$methodCoverage .= "<td>$methodData[cloc] / " . ($methodData['loc'] - $methodData['dloc']) . "</td>";
-					$methodCoverage .= "<td>" . round($methodData['cloc'] / ($methodData['loc'] - $methodData['dloc']) * 100, 2) . "%</td></tr>\n";
+					$methodDeclaration = $method . '(';
+					
+					$refMethod = $refClass->getMethod($method);
+					$methodDeclaration .= Util::buildParameterDefinition($refMethod) . ')';
+					unset($refMethod);
+					
+					$percentageData = self::getPercentage($methodData['cloc'], $methodData['loc'] - $methodData['dloc']);
+					
+					$methodCoverage .= "<tr class=\"method-coverage\"><th>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#line-$methodStartLine\">$methodDeclaration</a></th>";
+					$methodCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$methodData[cloc] / " . ($methodData['loc'] - $methodData['dloc']) . "</td>";
+					$methodCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
 					
 					$classLoc  += $methodData['loc'];
 					$classDloc += $methodData['dloc'];
@@ -177,8 +184,10 @@
 				}
 				
 				$classStartLine = $refClass->getStartLine();
-				$classCoverage .= "<tr class=\"class-coverage\"><th>&nbsp;&nbsp;<a href=\"#line-$classStartLine\">$class</a></th><td>$classCloc / " . ($classLoc - $classDloc) . "</td>";
-				$classCoverage .= "<td>" . round($classCloc / ($classLoc - $classDloc) * 100, 2) . "%</td></tr>\n";
+				$percentageData = self::getPercentage($classCloc, $classLoc - $classDloc);
+				$classCoverage .= "<tr class=\"class-coverage\"><th>&nbsp;&nbsp;<a href=\"#line-$classStartLine\">$class</a></th>";
+				$classCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$classCloc / " . ($classLoc - $classDloc) . "</td>";
+				$classCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
 				$classCoverage .= $methodCoverage;
 			}
 			
@@ -186,8 +195,10 @@
 			$tdloc += $classData['procedural']['dloc'];
 			$tcloc += $classData['procedural']['cloc'];
 			
-			$fileCoveragePercent = round($tcloc / max($tloc - $tdloc, 1) * 100, 2);
-			$fileCoverage = "<tr class=\"file-coverage\"><th>$sourceFile</th><td>$tcloc / " . ($tloc - $tdloc) . "</td><td>$fileCoveragePercent%</td></tr>\n";
+			$percentageData = self::getPercentage($tcloc, $tloc - $tdloc);
+			$fileCoverage = "<tr class=\"file-coverage\"><th>$sourceFile</th>";
+			$fileCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$tcloc / " . ($tloc - $tdloc) . "</td>";
+			$fileCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
 			$fileCoverage .= $classCoverage;
 			unset($classCoverage, $methodCoverage, $classData, $refClass);
 			
@@ -197,7 +208,7 @@
 			$lineNumbers = '';
 			
 			for ($i = 1, $len = count($lines); $i <= $len; $i++) {
-				$lineNumbers .= '<div><a name="#line-' . $i . '" href="#line-' . $i . '">' . $i . '</a></div>';
+				$lineNumbers .= '<div><a name="line-' . $i . '" href="#line-' . $i . '">' . $i . '</a></div>';
 				$code .= '<div';
 				if (isset($coverageData[$i])) {
 					$code .= ' class="';
@@ -239,7 +250,10 @@
 					'${product.name}',	
 					'${product.version}',
 					'${product.website}',
-					'${product.author}'
+					'${product.author}',
+					'${php.version}',
+					'${xdebug.version}',
+					'${ezc.version}'
 				),
 				array(
 					Product::NAME . ' - Coverage Report',
@@ -251,7 +265,10 @@
 					Product::NAME,
 					Product::VERSION,
 					Product::WEBSITE,
-					Product::AUTHOR
+					Product::AUTHOR,
+					phpversion(),
+					phpversion('xdebug'),
+					Product::EZC_VERSION
 				),
 				$template
 			);
@@ -319,17 +336,19 @@
 					}
 					$subdata = $dirData[$subdir];
 					
+					$percentageData = self::getPercentage($subdata['cloc'], $subdata['loc'] - $subdata['dloc']);
 					$info .= '<tr><th><a href="' . self::buildLink($baseDir, $subdir . DIRECTORY_SEPARATOR . 'foo', true) . '.html">' . basename($subdir) . '</a></th>';
-					$info .= '<td>' . $subdata['cloc'] . ' / ' . ($subdata['loc'] - $subdata['dloc']) . '</td>';
-					$info .= '<td>' . round($subdata['cloc'] / ($subdata['loc'] - $subdata['dloc']) * 100, 2) . '%</td>';
+					$info .= '<td class="coverage-ratio" style="background-color: ' . $percentageData[1] . '">' . $subdata['cloc'] . ' / ' . ($subdata['loc'] - $subdata['dloc']) . '</td>';
+					$info .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td>";
 					$info .= "</tr>\n";
 				}
 				
 				//regular files in current directory
 				foreach ($data['files'] as $file => $fileData) {
+					$percentageData = self::getPercentage($fileData['cloc'], $fileData['loc'] - $fileData['dloc']);
 					$info .= '<tr><th><a href="' . self::buildLink($baseDir, $file, true) . '-' . basename($file) . '.html">' . basename($file) . '</a></th>';
-					$info .= '<td>' . $fileData['cloc'] . ' / ' . ($fileData['loc'] - $fileData['dloc']) . '</td>';
-					$info .= '<td>' . round($fileData['cloc'] / ($fileData['loc'] - $fileData['dloc']) * 100, 2) . '%</td>';
+					$info .= '<td class="coverage-ratio" style="background-color: ' . $percentageData[1] . '">' . $fileData['cloc'] . ' / ' . ($fileData['loc'] - $fileData['dloc']) . '</td>';
+					$info .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td>";
 					$info .= "</tr>\n";
 				}
 				
@@ -342,7 +361,10 @@
 						'${product.name}',	
 						'${product.version}',
 						'${product.website}',
-						'${product.author}'
+						'${product.author}',
+						'${php.version}',
+						'${xdebug.version}',
+						'${ezc.version}'
 					),
 					array(
 						Product::NAME . ' - Coverage Report',
@@ -352,7 +374,10 @@
 						Product::NAME,
 						Product::VERSION,
 						Product::WEBSITE,
-						Product::AUTHOR
+						Product::AUTHOR,
+						phpversion(),
+						phpversion('xdebug'),
+						Product::EZC_VERSION
 					),
 					$template
 				);
@@ -368,6 +393,7 @@
 			} else {
 				$link = '<a href="./index.html">' . $baseDir . '</a>';
 			}
+			
 			$dirs = preg_split('@\\' . DIRECTORY_SEPARATOR . '@', str_replace($baseDir, '', dirname($path) . DIRECTORY_SEPARATOR), -1, PREG_SPLIT_NO_EMPTY);
 			$path = '';
 			foreach ($dirs as $dir) {
@@ -376,6 +402,7 @@
 				} else {
 					$path = $path . '-' . $dir;
 				}
+				
 				if ($oneLink) {
 					$link = $path;
 				} else {
@@ -392,6 +419,25 @@
 		
 		private static function getCoveredLoc($old, $new) {
 			return $old + (($new > 0) ? 1 : 0);
+		}
+		
+		private static function getPercentage($numerator, $denominator) {
+			$percentage = ($denominator != 0) ? round($numerator / $denominator * 100, 2) : 0;
+			$percentage = number_format($percentage, 2);
+			return array(
+				str_repeat('&nbsp;', 6 - strlen($percentage)) . $percentage,
+				self::getCoverageColor($percentage)
+			);
+		}
+		
+		private static function getCoverageColor($percentage) {
+			$color = '#';
+			
+			$color .= str_pad(dechex(255 - round($percentage * 2.55)), 2, '0', STR_PAD_LEFT);
+			$color .= str_pad(dechex(round($percentage * 2.55)), 2, '0', STR_PAD_LEFT);
+			$color .= '33';
+			
+			return $color;
 		}
 		
 	}
