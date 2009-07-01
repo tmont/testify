@@ -106,7 +106,7 @@
 						
 						require_once $file;
 						$ref = new ReflectionClass($className);
-						if ($ref->isSubClassOf('TestCase')) {
+						if ($ref->implementsInterface('Testable') && $ref->isInstantiable()) {
 							$tests[] = $ref->newInstance($className);
 							//add to filter
 							CoverageFilter::addFile($file);

@@ -254,6 +254,9 @@
 		}
 		
 		public static function getClassNamesFromFile($file) {
+			if (!is_file($file)) {
+				return array();
+			}
 			$tokens  = token_get_all(file_get_contents($file));
 			$classes = array();
 			for ($i = 0, $len = count($tokens); $i < $len; $i++) {

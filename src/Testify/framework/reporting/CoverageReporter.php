@@ -19,11 +19,21 @@
 					$refClasses[] = new ReflectionClass($class);
 				}
 				
-				$newData[$file] = array();
+				
+				$newData[$file] = array(
+					'classes'    => array(),
+					'procedural' => array(
+						'loc'  => 0,
+						'dloc' => 0,
+						'cloc' => 0
+					)
+				);
 				foreach ($data as $line => $unitsCovered) {
 					$loc  = 1;
 					$dloc = ($unitsCovered === self::DEAD) ? 1 : 0;
 					$cloc = ($unitsCovered > 0)            ? 1 : 0;
+					
+					
 					
 					//find the class this line resides in, if any
 					$class = null;
@@ -54,17 +64,9 @@
 					
 					//procedural code
 					if ($class === null) {
-						if (isset($newData[$file]['procedural'])) {
-							$newData[$file]['procedural']['loc']  += $loc;
-							$newData[$file]['procedural']['dloc'] += $dloc;
-							$newData[$file]['procedural']['cloc'] += $cloc;
-						} else {
-							$newData[$file]['procedural'] = array(
-								'loc'  => $loc,
-								'dloc' => $dloc,
-								'cloc' => $cloc
-							);
-						}
+						$newData[$file]['procedural']['loc']  += $loc;
+						$newData[$file]['procedural']['dloc'] += $dloc;
+						$newData[$file]['procedural']['cloc'] += $cloc;
 					}
 				}
 			}
@@ -143,7 +145,7 @@
 			//copy css over
 			$template = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR;
 			copy($template . 'style.css', $coverageDir . DIRECTORY_SEPARATOR . 'style.css');
-			copy($template . 'Testify.js', $coverageDir . DIRECTORY_SEPARATOR . 'Testify.js');
+			copy($template . 'testify.js', $coverageDir . DIRECTORY_SEPARATOR . 'testify.js');
 		}
 		
 		private static function writeHtmlFile($sourceFile, $baseDir, $coverageDir, array $classData, array $coverageData, $renderer) {
