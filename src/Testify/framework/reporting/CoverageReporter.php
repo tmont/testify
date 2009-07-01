@@ -288,6 +288,10 @@
 			return file_put_contents($newFile, $template);
 		}
 		
+		/**
+		 * @todo If there are no files in the root directory (e.g. only directories)
+		 *       then index.html does not get generated
+		 */
 		private static function writeHtmlDirectories($coverageDir, $baseDir, array $coverageData, $renderer) {
 			$dirData = array();
 			foreach ($coverageData as $file => $data) {
@@ -400,6 +404,7 @@
 					$template
 				);
 				
+				//echo $dir . "\n";
 				$fileName = ($dir === DIRECTORY_SEPARATOR) ? 'index.html' : str_replace(DIRECTORY_SEPARATOR, '-', $dir) . '.html';
 				file_put_contents($coverageDir . DIRECTORY_SEPARATOR . $fileName, $temp);
 			}

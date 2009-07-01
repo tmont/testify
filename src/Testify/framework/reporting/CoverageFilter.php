@@ -34,7 +34,9 @@
 		
 		public static function filter(array $data) {
 			foreach ($data as $file => $arr) {
-				if (in_array($file, self::$files)) {
+				if (strpos($file, ' : runtime-created function') !== false) {
+					unset($data[$file]);
+				} else if (in_array($file, self::$files)) {
 					unset($data[$file]);
 				} else {
 					foreach (self::$directories as $dir) {
