@@ -1,4 +1,4 @@
-<project name="TUnit" basedir="." default="help">
+<project name="Testify" basedir="." default="help">
 	
 	<property file="./properties/product.properties" prefix="product"/>
 	<property file="./properties/build.properties" prefix="build"/>
