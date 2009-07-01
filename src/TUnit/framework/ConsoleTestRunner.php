@@ -96,14 +96,14 @@
 		protected function postRun() {
 			$html    = $this->getOption('coverage-html');
 			$console = $this->getOption('coverage-console');
-			if ($html || $console) {
+			if ($html !== null || $console === true) {
 				$coverage = xdebug_get_code_coverage();
 				xdebug_stop_code_coverage();
-				if ($console !== null) {
+				if ($console === true) {
 					CoverageReporter::createConsoleReport($coverage);
 				}
 				if ($html !== null) {
-					CoverageReporter::createHtmlReport($html, $coverage);
+					CoverageReporter::createHtmlReport($html, $coverage, $this->getOption('coverage-renderer'));
 				}
 				
 				unset($coverage);
@@ -171,6 +171,13 @@
 							throw new TUnitException('Could not create directory: ' . $options['coverage-html']);
 						}
 					}
+					
+					//check the renderer
+					if ($options['coverage-renderer'] !== null) {
+						if (!in_array($options['coverage-renderer'], array('png'))) {
+							throw new InvalidOptionException('coverage-renderer', 'unknown renderer: ' . $options['renderer']);
+						}
+					}
 				}
 			}
 		}
@@ -186,11 +193,11 @@
 		 */
 		public function getAllowableOptions() {
 			return array(
-				'bootstrap'        => null,
-				'recursive'        => false,
-				//'coverage-xml'     => null,
-				'coverage-html'    => null,
-				'coverage-console' => false
+				'bootstrap'         => null,
+				'recursive'         => false,
+				'coverage-html'     => null,
+				'coverage-renderer' => null,
+				'coverage-console'  => false
 			);
 		}
 		

@@ -43,14 +43,14 @@
 	
 	global $switches;
 	$switches = new CliSwitchCollection();
-	$switches->addSwitch(new CliSwitch(null,               null, true, '<files>', 'Files and/or directories to parse for test cases'))
-	         ->addSwitch(new CliSwitch('help',             'h',  false, null,     'Display this help message (also --usage)'))
-	         ->addSwitch(new CliSwitch('usage',            null, false, null,     'Display this help message'))
-	         ->addSwitch(new CliSwitch('recursive',        null, false, null,     'Recurse into subdirectories'))
-	         ->addSwitch(new CliSwitch('bootstrap',        'b',  false, 'file',   'File to include before tests are run'))
-	         //->addSwitch(new CliSwitch('coverage-xml',     null, false, 'file',   'Generate code coverage report in XML clover format (requires xdebug)'))
-	         ->addSwitch(new CliSwitch('coverage-html',    null, false, 'dir',    'Generate code coverage report in HTML (requires xdebug, optionally uses ezComponents)'))
-	         ->addSwitch(new CliSwitch('coverage-console', null, false, null,     'Generate code coverage report suitable for console viewing'));
+	$switches->addSwitch(new CliSwitch(null,                null, true, '<files>', 'Files and/or directories to parse for test cases'))
+	         ->addSwitch(new CliSwitch('help',              'h',  false, null,     'Display this help message (also --usage)'))
+	         ->addSwitch(new CliSwitch('usage',             null, false, null,     'Display this help message'))
+	         ->addSwitch(new CliSwitch('recursive',         null, false, null,     'Recurse into subdirectories'))
+	         ->addSwitch(new CliSwitch('bootstrap',         'b',  false, 'file',   'File to include before tests are run'))
+	         ->addSwitch(new CliSwitch('coverage-html',     null, false, 'dir',    'Generate code coverage report in HTML (requires xdebug, optionally uses ezComponents)'))
+	         ->addSwitch(new CliSwitch('coverage-renderer', null, false, 'type',   'Use with coverage-html to render code coverage graphs; png is the only type supported right now'))
+	         ->addSwitch(new CliSwitch('coverage-console',  null, false, null,     'Generate code coverage report suitable for console viewing'));
 
 	array_shift($argv);
 	$args = Cli::parseArgs($argv, $switches);

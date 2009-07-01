@@ -40,7 +40,7 @@
 
 	class CoveragePieChart extends ezcGraphPieChart {
 		
-		public function __construct() {
+		public function __construct($renderer) {
 			parent::__construct();
 			
 			$this->palette = new CoveragePalette();
@@ -50,6 +50,7 @@
 			$this->options->label             = '%2$s (%3$.1f%%)';
 			$this->legend->position           = ezcGraph::BOTTOM;
 			
+			//use renderer here...
 			$this->renderer = new CoverageRenderer();
 			
 			$this->renderer->options->pieChartRotation = .6;

@@ -110,7 +110,7 @@
 			fwrite(STDOUT, "  Executable: " . ($totloc - $totdloc) . " (" . round($totcloc / ($totloc - $dloc) * 100, 2) . "%)\n");
 		}
 		
-		public static function createHtmlReport($coverageDir, array $coverageData) {
+		public static function createHtmlReport($coverageDir, array $coverageData, $renderer = null) {
 			$coverageData = CoverageFilter::filter($coverageData);
 			
 			$baseDir = array();
@@ -135,10 +135,10 @@
 			$classData = self::parseCoverageData($coverageData);
 			
 			foreach ($coverageData as $file => $data) {
-				self::writeHtmlFile($file, $baseDir, $coverageDir, $classData[$file], $data);
+				self::writeHtmlFile($file, $baseDir, $coverageDir, $classData[$file], $data, $renderer);
 			}
 			
-			self::writeHtmlDirectories($coverageDir, $baseDir, $coverageData);
+			self::writeHtmlDirectories($coverageDir, $baseDir, $coverageData, $renderer);
 			
 			//copy css over
 			$template = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::TEMPLATE_DIR . DIRECTORY_SEPARATOR;
@@ -146,7 +146,7 @@
 			copy($template . 'tunit.js', $coverageDir . DIRECTORY_SEPARATOR . 'tunit.js');
 		}
 		
-		private static function writeHtmlFile($sourceFile, $baseDir, $coverageDir, array $classData, array $coverageData) {
+		private static function writeHtmlFile($sourceFile, $baseDir, $coverageDir, array $classData, array $coverageData, $renderer) {
 			//summary view
 			$fileCoverage = '';
 			$classCoverage = '';
@@ -178,7 +178,9 @@
 					$methodCoverage .= "<tr class=\"method-coverage\"><th>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#line-$methodStartLine\">$methodDeclaration</a></th>";
 					$methodCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$methodData[cloc] / " . ($methodData['loc'] - $methodData['dloc']) . "</td>";
 					$methodCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
-					$methodCoverage .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($methodData['loc'], $methodData['dloc'], $methodData['cloc']) . '"/></td></tr>';
+					if ($renderer !== null) {
+						$methodCoverage .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($methodData['loc'], $methodData['dloc'], $methodData['cloc'], $renderer) . '"/></td></tr>';
+					}
 					
 					$classLoc  += $methodData['loc'];
 					$classDloc += $methodData['dloc'];
@@ -190,7 +192,9 @@
 				$classCoverage .= "<tr class=\"class-coverage\"><th>&nbsp;&nbsp;<a href=\"#line-$classStartLine\">$class</a></th>";
 				$classCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$classCloc / " . ($classLoc - $classDloc) . "</td>";
 				$classCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
-				$classCoverage .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($classLoc, $classDloc, $classCloc) . '"/></td></tr>';
+				if ($renderer !== null) {
+					$classCoverage .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($classLoc, $classDloc, $classCloc, $renderer) . '"/></td></tr>';
+				}
 				$classCoverage .= $methodCoverage;
 			}
 			
@@ -202,7 +206,9 @@
 			$fileCoverage = "<tr class=\"file-coverage\"><th>$sourceFile</th>";
 			$fileCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$tcloc / " . ($tloc - $tdloc) . "</td>";
 			$fileCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
-			$fileCoverage .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($tloc, $tdloc, $tcloc) . '"/></td></tr>';
+			if ($renderer !== null) {
+				$fileCoverage .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($tloc, $tdloc, $tcloc, $renderer) . '"/></td></tr>';
+			}
 			$fileCoverage .= $classCoverage;
 			unset($classCoverage, $methodCoverage, $classData, $refClass);
 			
@@ -280,7 +286,7 @@
 			return file_put_contents($newFile, $template);
 		}
 		
-		private static function writeHtmlDirectories($coverageDir, $baseDir, array $coverageData) {
+		private static function writeHtmlDirectories($coverageDir, $baseDir, array $coverageData, $renderer) {
 			$dirData = array();
 			foreach ($coverageData as $file => $data) {
 				$dirs = preg_split('@\\' . DIRECTORY_SEPARATOR . '@', str_replace($baseDir, '', dirname($file) . DIRECTORY_SEPARATOR), -1, PREG_SPLIT_NO_EMPTY);
@@ -345,7 +351,9 @@
 					$info .= '<td class="coverage-ratio" style="background-color: ' . $percentageData[1] . '">' . $subdata['cloc'] . ' / ' . ($subdata['loc'] - $subdata['dloc']) . '</td>';
 					$info .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td>";
 					$info .= "</tr>\n";
-					$info .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($subdata['loc'], $subdata['dloc'], $subdata['cloc']) . '"/></td></tr>';
+					if ($renderer !== null) {
+						$info .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($subdata['loc'], $subdata['dloc'], $subdata['cloc'], $renderer) . '"/></td></tr>';
+					}
 				}
 				
 				//regular files in current directory
@@ -355,7 +363,9 @@
 					$info .= '<td class="coverage-ratio" style="background-color: ' . $percentageData[1] . '">' . $fileData['cloc'] . ' / ' . ($fileData['loc'] - $fileData['dloc']) . '</td>';
 					$info .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td>";
 					$info .= "</tr>\n";
-					$info .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($fileData['loc'], $fileData['dloc'], $fileData['cloc']) . '"/></td></tr>';
+					if ($renderer !== null) {
+						$info .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($fileData['loc'], $fileData['dloc'], $fileData['cloc'], $renderer) . '"/></td></tr>';
+					}
 				}
 				
 				$temp = str_replace(
@@ -446,8 +456,8 @@
 			return $color;
 		}
 		
-		private static function getDataUri($loc, $dloc, $cloc) {
-			$graph = new CoveragePieChart();
+		private static function getDataUri($loc, $dloc, $cloc, $renderer) {
+			$graph = new CoveragePieChart($renderer);
 			return $graph->renderToDataUri(300, 225, $loc - $cloc - $dloc, $dloc, $cloc);
 		}
 		
