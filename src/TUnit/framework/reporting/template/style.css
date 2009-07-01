@@ -88,6 +88,9 @@ thead th {
 	color: #000000;
 }
 
+.coverage-graph td {
+	text-align: center;
+}
 .coverage-percentage {
 	text-align: center;
 }
