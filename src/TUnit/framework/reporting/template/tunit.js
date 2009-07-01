@@ -30,28 +30,43 @@
 			toggler.style.cursor = "pointer";
 			
 			toggler.onmouseover = function() {
-				var child = this.firstChild;
-				do {
-					if (child.nodeName === "TD" || child.nodeName === "TH") {
-						child.style.backgroundColor = "#990099";
-						child.style.color = "#FFFFFF";
-					}
-				} while (child = child.nextSibling);
+				var th = this.getElementsByTagName("th")[0];
+				th.style.backgroundColor = "#990099";
+				th.style.color = "#FFFFFF";
+				var a = th.getElementsByTagName("a");
+				if (a.length > 0) {
+					a[0].style.backgroundColor = "#990099";
+					a[0].style.color = "#FFFFFF";
+				}
 			}
 			
 			toggler.onmouseout = function() {
-				var child = this.firstChild;
-				do {
-					if (child.nodeName === "TD" || child.nodeName === "TH") {
-						child.style.backgroundColor = "";
-						child.style.color = "";
-					}
-				} while (child = child.nextSibling);
+				var th = this.getElementsByTagName("th")[0];
+				th.style.backgroundColor = "";
+				th.style.color = "";
+				var a = th.getElementsByTagName("a");
+				if (a.length > 0) {
+					a[0].style.backgroundColor = "";
+					a[0].style.color = "";
+				}
 			}
 			
 			toggler.onclick = function() {
 				var display = this.nextSibling.nextSibling.style.display;
 				this.nextSibling.nextSibling.style.display = (display === "none") ? "table-row" : "none";
+			}
+			
+			//cancel event bubbling on the anchors
+			var a = toggler.getElementsByTagName("a");
+			for (var j = 0, jlen = a.length; j < jlen; j++) {
+				a[j].onclick = function(e) {
+					e = e || window.event;
+					if (e.stopPropagation) {
+						e.stopPropagation();
+					} else {
+						e.cancelBubble = true;
+					}
+				}
 			}
 			
 			graphs[i].style.display = "none";

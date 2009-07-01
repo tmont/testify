@@ -345,6 +345,7 @@
 					$info .= '<td class="coverage-ratio" style="background-color: ' . $percentageData[1] . '">' . $subdata['cloc'] . ' / ' . ($subdata['loc'] - $subdata['dloc']) . '</td>';
 					$info .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td>";
 					$info .= "</tr>\n";
+					$info .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($subdata['loc'], $subdata['dloc'], $subdata['cloc']) . '"/></td></tr>';
 				}
 				
 				//regular files in current directory
@@ -354,6 +355,7 @@
 					$info .= '<td class="coverage-ratio" style="background-color: ' . $percentageData[1] . '">' . $fileData['cloc'] . ' / ' . ($fileData['loc'] - $fileData['dloc']) . '</td>';
 					$info .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td>";
 					$info .= "</tr>\n";
+					$info .= '<tr class="coverage-graph"><td colspan="3"><img alt="Code Coverage results" src="' . self::getDataUri($fileData['loc'], $fileData['dloc'], $fileData['cloc']) . '"/></td></tr>';
 				}
 				
 				$temp = str_replace(
