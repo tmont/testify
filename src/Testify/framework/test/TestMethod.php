@@ -39,6 +39,13 @@
 		protected $name;
 		
 		/**
+		 * Name of the expected exception
+		 *
+		 * @string
+		 */
+		protected $expectedException;
+		
+		/**
 		 * Constructor
 		 *
 		 * @author  Tommy Montgomery
@@ -50,9 +57,10 @@
 		 * @param  bool   $autoVerify
 		 */
 		public function __construct($closure, $name, $autoVerify) {
-			$this->closure    = $closure;
-			$this->autoVerify = (bool)$autoVerify;
-			$this->name       = $name;
+			$this->closure           = $closure;
+			$this->autoVerify        = (bool)$autoVerify;
+			$this->name              = $name;
+			$this->expectedException = null;
 		}
 		
 		/**
@@ -66,6 +74,19 @@
 		 */
 		public final function getName() {
 			return $this->name;
+		}
+		
+		/**
+		 * Sets the expected exception
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $exceptionName Name of the exception that is expected to be thrown
+		 */
+		public final function setExpectedException($exceptionName) {
+			$this->expectedException = $exceptionName;
 		}
 		
 		/**
@@ -107,18 +128,31 @@
 					}
 				}
 				
+				if ($this->expectedException !== null) {
+					//expected exception was never thrown
+					throw new FailedTest('Expected exception "' . $this->expectedException . '" to be thrown');
+				}
+				
 				foreach ($listeners as $listener) {
 					$listener->onTestMethodPassed($this);
 				}
 			} catch (TestFailure $failure) {
 				$this->handleTestFailure($failure, $listeners);
 			} catch (Exception $e) {
-				//test for expected exception
-				foreach ($listeners as $listener) {
-					$listener->onTestMethodErred($this);
+				if ($this->expectedException !== null) {
+					if ($e instanceof $this->expectedException) {
+						//we expected this exception
+						foreach ($listeners as $listener) {
+							$listener->onTestMethodPassed($this);
+						}
+					}
+				} else {
+					foreach ($listeners as $listener) {
+						$listener->onTestMethodErred($this);
+					}
+					
+					$failure = new ErredTest($e->getMessage(), $e);
 				}
-				
-				$failure = new ErredTest($e->getMessage(), $e);
 			}
 			
 			$result = $this->createTestResult($failure);

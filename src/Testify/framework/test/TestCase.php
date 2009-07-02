@@ -187,7 +187,7 @@
 						$method->getDeclaringClass()->getName() !== __CLASS__ &&
 						preg_match('/^[\/\*\s]*@test\s*(?:\*\/)?$/m', $method->getDocComment())
 					) {
-						$methods[] = new TestMethod(Util::getClosure($this, $method->getName()), get_class($this) . '::' . $method->getName(), $this->getAutoVerify());
+						$methods[$method->getName()] = new TestMethod(Util::getClosure($this, $method->getName()), get_class($this) . '::' . $method->getName(), $this->getAutoVerify());
 					}
 				}
 				
@@ -220,6 +220,30 @@
 			}
 			
 			return $creator->generate($args, $name);
+		}
+		
+		/**
+		 * Sets the exception that is expected to be thrown in this method
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @param  string $exceptionName The name of the exception that is expected to be thrown
+		 * @throws InvalidArgumentException
+		 */
+		protected function setExpectedException($exceptionName) {
+			if (!is_string($exceptionName)) {
+				throw new InvalidArgumentException('1st argument must be a string');
+			}
+			
+			//get name of calling method
+			$trace = debug_backtrace();
+			$method = $trace[1]['function'];
+			unset($trace);
+			
+			$methods = $this->getTestableMethods();
+			$methods[$method]->setExpectedException($exceptionName);
 		}
 		
 		/**
