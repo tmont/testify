@@ -28,12 +28,11 @@
 						'cloc' => 0
 					)
 				);
+				
 				foreach ($data as $line => $unitsCovered) {
 					$loc  = 1;
 					$dloc = ($unitsCovered === self::DEAD) ? 1 : 0;
 					$cloc = ($unitsCovered > 0)            ? 1 : 0;
-					
-					
 					
 					//find the class this line resides in, if any
 					$class = null;
@@ -109,7 +108,7 @@
 			fwrite(STDOUT, "Totals:\n");
 			fwrite(STDOUT, "  Covered:    $totcloc\n");
 			fwrite(STDOUT, "  Dead:       $totdloc\n");
-			fwrite(STDOUT, "  Executable: " . ($totloc - $totdloc) . " (" . round($totcloc / ($totloc - $dloc) * 100, 2) . "%)\n");
+			fwrite(STDOUT, "  Executable: " . ($totloc - $totdloc) . " (" . round($totcloc / ($totloc - $totdloc) * 100, 2) . "%)\n");
 		}
 		
 		public static function createHtmlReport($coverageDir, array $coverageData, $renderer = null) {
@@ -150,14 +149,13 @@
 		
 		private static function writeHtmlFile($sourceFile, $baseDir, $coverageDir, array $classData, array $coverageData, $renderer) {
 			//summary view
-			$fileCoverage = '';
+			$fileCoverage  = '';
 			$classCoverage = '';
 			
-			$tloc  = 0;
-			$tdloc = 0;
-			$tcloc = 0;
+			$tloc          = 0;
+			$tdloc         = 0;
+			$tcloc         = 0;
 			foreach ($classData['classes'] as $class => $methods) {
-				$classCoverage = '';
 				$classLoc  = 0;
 				$classDloc = 0;
 				$classCloc = 0;
@@ -177,7 +175,7 @@
 					
 					$percentageData = self::getPercentage($methodData['cloc'], $methodData['loc'] - $methodData['dloc']);
 					
-					$methodCoverage .= "<tr class=\"method-coverage\"><th>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#line-$methodStartLine\">$methodDeclaration</a></th>";
+					$methodCoverage .= "<tr class=\"coverage-method\"><th>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#line-$methodStartLine\" title=\"$class::$method() (line $methodStartLine)\">$methodDeclaration</a></th>";
 					$methodCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$methodData[cloc] / " . ($methodData['loc'] - $methodData['dloc']) . "</td>";
 					$methodCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
 					if ($renderer !== null) {
@@ -191,7 +189,7 @@
 				
 				$classStartLine = $refClass->getStartLine();
 				$percentageData = self::getPercentage($classCloc, $classLoc - $classDloc);
-				$classCoverage .= "<tr class=\"class-coverage\"><th>&nbsp;&nbsp;<a href=\"#line-$classStartLine\">$class</a></th>";
+				$classCoverage .= "<tr class=\"coverage-class\"><th>&nbsp;&nbsp;<a href=\"#line-$classStartLine\" title=\"$class (line $classStartLine)\">$class</a></th>";
 				$classCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$classCloc / " . ($classLoc - $classDloc) . "</td>";
 				$classCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
 				if ($renderer !== null) {
@@ -200,12 +198,12 @@
 				$classCoverage .= $methodCoverage;
 			}
 			
-			$tloc += $classData['procedural']['loc'];
+			$tloc  += $classData['procedural']['loc'];
 			$tdloc += $classData['procedural']['dloc'];
 			$tcloc += $classData['procedural']['cloc'];
 			
 			$percentageData = self::getPercentage($tcloc, $tloc - $tdloc);
-			$fileCoverage = "<tr class=\"file-coverage\"><th>$sourceFile</th>";
+			$fileCoverage = "<tr class=\"coverage-file\"><th>$sourceFile</th>";
 			$fileCoverage .= "<td class=\"coverage-percentage\" style=\"background-color: $percentageData[1]\">$tcloc / " . ($tloc - $tdloc) . "</td>";
 			$fileCoverage .= "<td class=\"coverage-ratio\" style=\"background-color: $percentageData[1]\">$percentageData[0]%</td></tr>\n";
 			if ($renderer !== null) {
@@ -220,7 +218,7 @@
 			$lineNumbers = '';
 			
 			for ($i = 1, $len = count($lines); $i <= $len; $i++) {
-				$lineNumbers .= '<div><a name="line-' . $i . '" href="#line-' . $i . '">' . $i . '</a></div>';
+				$lineNumbers .= '<div><a name="line-' . $i . '" href="#line-' . $i . '">' . $i . '</a></div>' . "\n";
 				$code .= '<div';
 				if (isset($coverageData[$i])) {
 					$code .= ' class="';

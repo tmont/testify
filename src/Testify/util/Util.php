@@ -84,7 +84,7 @@
 					$paramList .= '&';
 				}
 				
-				$paramList .= self::repairParameterName($param->getName(), $i);
+				$paramList .= '$' . self::repairParameterName($param->getName(), $i);
 				
 				if ($param->isOptional()) {
 					$paramList .= ' = ';

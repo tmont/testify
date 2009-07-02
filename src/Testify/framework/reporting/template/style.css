@@ -88,6 +88,20 @@ thead th {
 	color: #000000;
 }
 
+.coverage-file {
+	background-color: #FFFFFF;
+	border-bottom: 3px solid #000000;
+}
+.coverage-class {
+	background-color: #EEEEEE;
+	border-bottom: 2px solid #000000;
+}
+.coverage-method {
+	background-color: #DDDDDD;
+}
+.coverage-method a {
+	color: #996699;
+}
 .coverage-graph td {
 	text-align: center;
 }
