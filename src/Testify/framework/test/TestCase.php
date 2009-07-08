@@ -187,7 +187,17 @@
 						$method->getDeclaringClass()->getName() !== __CLASS__ &&
 						preg_match('/^[\/\*\s]*@test\s*(?:\*\/)?$/m', $method->getDocComment())
 					) {
-						$methods[$method->getName()] = new TestMethod(Util::getClosure($this, $method->getName()), get_class($this) . '::' . $method->getName(), $this->getAutoVerify());
+						$name = get_class($this) . '::' . $method->getName();
+						if (!$method->isPublic()) {
+							ErrorStack::addWarning('The test ' . $name . ' is not a public method');
+							continue;
+						}
+						if (count($method->getParameters()) > 0) {
+							ErrorStack::addWarning('The test ' . $name . ' has an invalid method signature');
+							continue;
+						}
+						
+						$methods[$method->getName()] = new TestMethod(Util::getClosure($this, $method->getName()), $name, $this->getAutoVerify());
 					}
 				}
 				

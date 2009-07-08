@@ -285,6 +285,29 @@
 		}
 		
 		/**
+		 * Publishes framework errors
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * @uses    ErrorStack::getWarnings()
+		 * @uses    ErrorStack::getErrors()
+		 * @uses    err()
+		 * @uses    warn()
+		 */
+		public function publishErrors() {
+			$warnings = ErrorStack::getWarnings();
+			foreach ($warnings as $message) {
+				$this->warn($message);
+			}
+			
+			$errors = ErrorStack::getErrors();
+			foreach ($errors as $message) {
+				$this->err($message);
+			}
+		}
+		
+		/**
 		 * Called before runTests()
 		 *
 		 * @author  Tommy Montgomery
@@ -303,6 +326,7 @@
 		 * @since   1.0
 		 * @uses    TestListener::beforeTestRunner()
 		 * @uses    publishResults()
+		 * @uses    publishErrors()
 		 * @uses    TestListener::afterTestRunner()
 		 */
 		public final function run() {
@@ -317,6 +341,7 @@
 			$this->endTime   = microtime(true);
 			
 			$this->publishResults($results);
+			$this->publishErrors();
 			
 			foreach ($this->listeners as $listener) {
 				$listener->afterTestRunner($this);

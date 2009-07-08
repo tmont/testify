@@ -425,7 +425,7 @@
 		 * @param  mixed $message
 		 */
 		public function onFrameworkError($message) {
-			$this->err('ERROR: ' . $message);
+			$this->err('ERROR: ' . $message . "\n");
 		}
 		
 		/**
@@ -439,7 +439,7 @@
 		 */
 		public function onFrameworkWarning($message) {
 			if ($this->verbosity > self::VERBOSITY_LOW) {
-				$this->out('WARNING: ' . $message);
+				$this->out('WARNING: ' . $message . "\n");
 			}
 		}
 		
