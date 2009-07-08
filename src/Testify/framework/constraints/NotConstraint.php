@@ -108,10 +108,12 @@
 		protected function negateString($string) {
 			return str_replace(
 				array(
-					' is '
+					' is ',
+					' has '
 				),
 				array(
-					' is not '
+					' is not ',
+					' has not '
 				),
 				$string
 			);

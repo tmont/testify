@@ -230,5 +230,81 @@
 		}
 		
 	}
+	
+	/**
+	 * Constraint for asserting that a value is a file
+	 *
+	 * @package Testify
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+	class IsFileConstraint extends SimpleConstraint {
+		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return bool
+		 */
+		public function evaluate() {
+			return is_file($this->value);
+		}
+		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return string
+		 */
+		protected function getFailureMessage() {
+			return Util::export($this->value) . ' is a file';
+		}
+		
+	}
+	
+	/**
+	 * Constraint for asserting that a value is a directory
+	 *
+	 * @package Testify
+	 * @author  Tommy Montgomery
+	 * @version 1.0
+	 * @since   1.0
+	 */
+	class IsDirectoryConstraint extends SimpleConstraint {
+		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return bool
+		 */
+		public function evaluate() {
+			return is_dir($this->value);
+		}
+		
+		/**
+		 * {@inheritdoc}
+		 *
+		 * @author  Tommy Montgomery
+		 * @version 1.0
+		 * @since   1.0
+		 * 
+		 * @return string
+		 */
+		protected function getFailureMessage() {
+			return Util::export($this->value) . ' is a directory';
+		}
+		
+	}
 
 ?>
