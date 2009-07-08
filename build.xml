@@ -9,6 +9,23 @@
 		<delete file="${dir.src}/${ant.project.name}/util/Product.php"/>
 	</target>
 	
+	<target name="doc" depends="init, set-exe-suffix, prepare-build" description="Generates source code documentation using phpDocument">
+		<exec executable="phpdoc${exe.suffix}" failonerror="false">
+			<arg value="-ti"/>
+			<arg value="Testify"/>
+			<arg value="-pp"/>
+			<arg value="on"/>
+			<arg value="-ue"/>
+			<arg value="on"/>
+			<arg value="-i"/>
+			<arg value="external/"/>
+			<arg value="-d"/>
+			<arg value="${dir.src}"/>
+			<arg value="-t"/>
+			<arg value="${build.base}/doc"/>
+		</exec>
+	</target>
+	
 	<target name="help" depends="set-exe-suffix" description="Displays information about available targets">
 		<exec executable="ant${exe.suffix}" failonerror="true">
 			<arg value="-p"/>
